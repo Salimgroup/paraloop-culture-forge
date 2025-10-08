@@ -1,0 +1,39 @@
+{
+  "name": "SocialCopy",
+  "role": "Generate concise cross-platform social copy for a Paraloop article.",
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "headline_paraloop": {
+        "type": "string"
+      },
+      "key_takeaway": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "headline_paraloop",
+      "key_takeaway"
+    ]
+  },
+  "output_schema": {
+    "type": "object",
+    "properties": {
+      "caption": {
+        "type": "string",
+        "maxLength": 140
+      },
+      "hashtag": {
+        "type": "string",
+        "enum": [
+          "#ParaloopCulture"
+        ]
+      }
+    },
+    "required": [
+      "caption",
+      "hashtag"
+    ]
+  },
+  "instructions": "Write a 120\u2013140 character caption with max 1 emoji and include #ParaloopCulture. No links."
+}
