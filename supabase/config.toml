@@ -11,3 +11,6 @@ verify_jwt = false
 
 [functions.import-sources]
 verify_jwt = false
+
+[functions.get-feed]
+verify_jwt = false
