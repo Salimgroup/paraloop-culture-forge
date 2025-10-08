@@ -14,7 +14,258 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      articles: {
+        Row: {
+          category: string | null
+          created_at: string
+          domain: string
+          duplicate_of: string | null
+          excerpt: string | null
+          flags: string[] | null
+          id: string
+          impact_level: string | null
+          published_at: string | null
+          reasons: string[] | null
+          region_hint: string | null
+          regions: string[] | null
+          relevance_score: number | null
+          reviewed_at: string | null
+          scored_at: string | null
+          source_id: string | null
+          status: string
+          tags: string[] | null
+          title: string
+          topics: string[] | null
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          domain: string
+          duplicate_of?: string | null
+          excerpt?: string | null
+          flags?: string[] | null
+          id?: string
+          impact_level?: string | null
+          published_at?: string | null
+          reasons?: string[] | null
+          region_hint?: string | null
+          regions?: string[] | null
+          relevance_score?: number | null
+          reviewed_at?: string | null
+          scored_at?: string | null
+          source_id?: string | null
+          status?: string
+          tags?: string[] | null
+          title: string
+          topics?: string[] | null
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          domain?: string
+          duplicate_of?: string | null
+          excerpt?: string | null
+          flags?: string[] | null
+          id?: string
+          impact_level?: string | null
+          published_at?: string | null
+          reasons?: string[] | null
+          region_hint?: string | null
+          regions?: string[] | null
+          relevance_score?: number | null
+          reviewed_at?: string | null
+          scored_at?: string | null
+          source_id?: string | null
+          status?: string
+          tags?: string[] | null
+          title?: string
+          topics?: string[] | null
+          updated_at?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "articles_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "sources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      curated_articles: {
+        Row: {
+          actions_next: string[]
+          article_id: string
+          author: string | null
+          canonical_url: string
+          created_at: string
+          headline_paraloop: string
+          id: string
+          outlet: string
+          published: boolean
+          published_at: string | null
+          pull_quote: Json
+          seo_slug: string
+          social_caption: string
+          source_published_at: string | null
+          source_region: string | null
+          summary_paraloop: string
+          text_extracted: string
+          title_source: string
+          tl_dr_bullets: string[]
+          updated_at: string
+          wellness_angle: string
+        }
+        Insert: {
+          actions_next: string[]
+          article_id: string
+          author?: string | null
+          canonical_url: string
+          created_at?: string
+          headline_paraloop: string
+          id?: string
+          outlet: string
+          published?: boolean
+          published_at?: string | null
+          pull_quote: Json
+          seo_slug: string
+          social_caption: string
+          source_published_at?: string | null
+          source_region?: string | null
+          summary_paraloop: string
+          text_extracted: string
+          title_source: string
+          tl_dr_bullets: string[]
+          updated_at?: string
+          wellness_angle: string
+        }
+        Update: {
+          actions_next?: string[]
+          article_id?: string
+          author?: string | null
+          canonical_url?: string
+          created_at?: string
+          headline_paraloop?: string
+          id?: string
+          outlet?: string
+          published?: boolean
+          published_at?: string | null
+          pull_quote?: Json
+          seo_slug?: string
+          social_caption?: string
+          source_published_at?: string | null
+          source_region?: string | null
+          summary_paraloop?: string
+          text_extracted?: string
+          title_source?: string
+          tl_dr_bullets?: string[]
+          updated_at?: string
+          wellness_angle?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "curated_articles_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "articles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      social_posts: {
+        Row: {
+          caption: string
+          created_at: string
+          curated_article_id: string
+          external_id: string | null
+          hashtag: string
+          id: string
+          platform: string
+          posted: boolean
+          posted_at: string | null
+        }
+        Insert: {
+          caption: string
+          created_at?: string
+          curated_article_id: string
+          external_id?: string | null
+          hashtag?: string
+          id?: string
+          platform: string
+          posted?: boolean
+          posted_at?: string | null
+        }
+        Update: {
+          caption?: string
+          created_at?: string
+          curated_article_id?: string
+          external_id?: string | null
+          hashtag?: string
+          id?: string
+          platform?: string
+          posted?: boolean
+          posted_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_posts_curated_article_id_fkey"
+            columns: ["curated_article_id"]
+            isOneToOne: false
+            referencedRelation: "curated_articles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sources: {
+        Row: {
+          active: boolean
+          bias_label: string | null
+          created_at: string
+          id: string
+          last_fetched_at: string | null
+          name: string
+          notes: string | null
+          regions: string[] | null
+          type: string
+          updated_at: string
+          url: string
+          weight: number
+        }
+        Insert: {
+          active?: boolean
+          bias_label?: string | null
+          created_at?: string
+          id?: string
+          last_fetched_at?: string | null
+          name: string
+          notes?: string | null
+          regions?: string[] | null
+          type: string
+          updated_at?: string
+          url: string
+          weight?: number
+        }
+        Update: {
+          active?: boolean
+          bias_label?: string | null
+          created_at?: string
+          id?: string
+          last_fetched_at?: string | null
+          name?: string
+          notes?: string | null
+          regions?: string[] | null
+          type?: string
+          updated_at?: string
+          url?: string
+          weight?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
