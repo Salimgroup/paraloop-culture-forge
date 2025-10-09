@@ -10,50 +10,54 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Navigation */}
-      <nav className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-hero flex items-center justify-center shadow-glow">
-                <span className="text-white font-bold text-xl">P</span>
-              </div>
-              <div>
-                <h1 className="text-xl font-bold">Paraloop</h1>
-                <p className="text-xs text-muted-foreground">Culture Engine</p>
-              </div>
-            </div>
+      {/* Hero Header - Bold Split Design */}
+      <div className="relative h-[400px] bg-gradient-hero overflow-hidden">
+        <div className="container mx-auto px-8 h-full flex items-center">
+          <div className="w-1/2 text-foreground">
+            <h1 className="text-8xl font-black mb-4 leading-none">
+              PARALOOP
+            </h1>
+            <p className="text-xl font-medium uppercase tracking-wide">
+              Culture Engine. AI-Powered Curation.
+            </p>
           </div>
         </div>
-      </nav>
+      </div>
+
+      {/* Navigation Tabs */}
+      <div className="border-b border-border bg-card/50 sticky top-0 z-50 backdrop-blur-sm">
+        <div className="container mx-auto px-8">
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="bg-transparent border-0 h-16 space-x-1">
+              <TabsTrigger 
+                value="dashboard" 
+                className="flex items-center gap-3 text-base font-bold uppercase data-[state=active]:bg-primary data-[state=active]:text-primary-foreground px-8 h-12"
+              >
+                <LayoutDashboard className="w-5 h-5" />
+                Dashboard
+              </TabsTrigger>
+              <TabsTrigger 
+                value="articles"
+                className="flex items-center gap-3 text-base font-bold uppercase data-[state=active]:bg-primary data-[state=active]:text-primary-foreground px-8 h-12"
+              >
+                <FileText className="w-5 h-5" />
+                Articles
+              </TabsTrigger>
+              <TabsTrigger 
+                value="sources"
+                className="flex items-center gap-3 text-base font-bold uppercase data-[state=active]:bg-primary data-[state=active]:text-primary-foreground px-8 h-12"
+              >
+                <Rss className="w-5 h-5" />
+                Sources
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
+      </div>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-          <TabsList className="bg-card border p-1 h-auto">
-            <TabsTrigger 
-              value="dashboard" 
-              className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-            >
-              <LayoutDashboard className="w-4 h-4" />
-              Dashboard
-            </TabsTrigger>
-            <TabsTrigger 
-              value="articles"
-              className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-            >
-              <FileText className="w-4 h-4" />
-              Articles
-            </TabsTrigger>
-            <TabsTrigger 
-              value="sources"
-              className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-            >
-              <Rss className="w-4 h-4" />
-              Sources
-            </TabsTrigger>
-          </TabsList>
-
+      <main className="container mx-auto px-8 py-16">
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsContent value="dashboard" className="mt-0">
             <Dashboard />
           </TabsContent>

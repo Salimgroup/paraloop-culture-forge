@@ -41,101 +41,100 @@ export function Dashboard() {
 
   const statCards = [
     {
-      label: "Pending Review",
+      label: "PENDING",
       value: stats?.pending || 0,
       icon: Clock,
-      color: "text-warning",
-      bgGradient: "from-warning/10 to-warning/5"
+      bgColor: "bg-secondary",
+      textColor: "text-secondary-foreground"
     },
     {
-      label: "AI Scored",
+      label: "AI SCORED",
       value: stats?.scored || 0,
       icon: Sparkles,
-      color: "text-info",
-      bgGradient: "from-info/10 to-info/5"
+      bgColor: "bg-primary",
+      textColor: "text-primary-foreground"
     },
     {
-      label: "Approved",
+      label: "APPROVED",
       value: stats?.approved || 0,
       icon: CheckCircle,
-      color: "text-success",
-      bgGradient: "from-success/10 to-success/5"
+      bgColor: "bg-card",
+      textColor: "text-foreground"
+    }
+  ];
+
+  const largeStats = [
+    {
+      number: stats?.published || 0,
+      label: "PUBLISHED ARTICLES",
+      icon: TrendingUp
     },
     {
-      label: "Published",
-      value: stats?.published || 0,
-      icon: TrendingUp,
-      color: "text-secondary",
-      bgGradient: "from-secondary/10 to-secondary/5"
+      number: stats?.totalSources || 0,
+      label: "ACTIVE SOURCES",
+      icon: Globe
     },
     {
-      label: "Active Sources",
-      value: stats?.totalSources || 0,
-      icon: Globe,
-      color: "text-primary",
-      bgGradient: "from-primary/10 to-primary/5"
-    },
-    {
-      label: "Total Articles",
-      value: (stats?.pending || 0) + (stats?.scored || 0) + (stats?.approved || 0),
-      icon: FileText,
-      color: "text-accent",
-      bgGradient: "from-accent/10 to-accent/5"
+      number: (stats?.pending || 0) + (stats?.scored || 0) + (stats?.approved || 0),
+      label: "TOTAL IN PIPELINE",
+      icon: FileText
     }
   ];
 
   return (
-    <div className="space-y-8">
-      {/* Hero Header */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-hero p-8 shadow-glow">
-        <div className="relative z-10">
-          <h1 className="text-4xl font-bold text-white mb-2">
-            Paraloop Culture Engine
-          </h1>
-          <p className="text-white/90 text-lg">
-            AI-powered content curation for global culture news
-          </p>
-        </div>
-        <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10" />
-      </div>
-
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {statCards.map((stat) => {
+    <div className="space-y-16">
+      {/* Small Stats - Split Design */}
+      <div className="grid grid-cols-3 gap-8">
+        {statCards.map((stat, idx) => {
           const Icon = stat.icon;
           return (
-            <Card 
+            <div 
               key={stat.label}
-              className={`p-6 border-0 bg-gradient-to-br ${stat.bgGradient} backdrop-blur-sm hover:shadow-md transition-all duration-300`}
+              className={`${stat.bgColor} ${stat.textColor} p-12 aspect-square flex flex-col items-center justify-center relative overflow-hidden group hover:shadow-glow transition-all duration-300`}
             >
-              <div className="flex items-start justify-between">
-                <div className="space-y-2">
-                  <p className="text-sm font-medium text-muted-foreground">
-                    {stat.label}
-                  </p>
-                  <p className="text-3xl font-bold">
-                    {stat.value}
-                  </p>
+              <Icon className="w-12 h-12 mb-6 opacity-50" />
+              <div className="text-7xl font-black mb-4">
+                {stat.value}
+              </div>
+              <div className="text-sm font-bold tracking-widest">
+                {stat.label}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Large Stats - Bold Typography */}
+      <div className="space-y-8">
+        {largeStats.map((stat) => {
+          const Icon = stat.icon;
+          return (
+            <div 
+              key={stat.label}
+              className="bg-card border-l-8 border-primary p-12 flex items-center justify-between group hover:bg-muted/50 transition-all duration-300"
+            >
+              <div>
+                <div className="text-8xl font-black text-foreground mb-2">
+                  {stat.number}
                 </div>
-                <div className={`p-3 rounded-xl bg-card ${stat.color}`}>
-                  <Icon className="w-6 h-6" />
+                <div className="text-xl font-bold text-muted-foreground tracking-widest">
+                  {stat.label}
                 </div>
               </div>
-            </Card>
+              <Icon className="w-24 h-24 text-primary/20 group-hover:text-primary/40 transition-colors" />
+            </div>
           );
         })}
       </div>
 
       {/* Quick Actions */}
-      <Card className="p-6 bg-gradient-card border-0">
-        <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-primary" />
-          Quick Actions
+      <div className="bg-gradient-hero p-16">
+        <h2 className="text-4xl font-black mb-8 text-foreground">
+          QUICK ACTIONS
         </h2>
-        <div className="flex flex-wrap gap-3">
-          <Badge 
-            variant="secondary" 
-            className="px-4 py-2 cursor-pointer hover:shadow-md transition-shadow"
+        <div className="grid grid-cols-2 gap-6">
+          <button 
+            className="bg-background text-foreground p-8 font-bold text-xl uppercase hover:bg-primary hover:text-primary-foreground transition-all duration-300 border-2 border-foreground"
             onClick={async () => {
               try {
                 const { error } = await supabase.functions.invoke('import-sources');
@@ -147,18 +146,18 @@ export function Dashboard() {
             }}
           >
             Import Starter Sources
-          </Badge>
-          <Badge variant="outline" className="px-4 py-2 cursor-pointer hover:bg-primary/5 transition-colors">
+          </button>
+          <button className="bg-primary text-primary-foreground p-8 font-bold text-xl uppercase hover:shadow-glow transition-all duration-300">
             Fetch New Articles
-          </Badge>
-          <Badge variant="outline" className="px-4 py-2 cursor-pointer hover:bg-primary/5 transition-colors">
+          </button>
+          <button className="bg-secondary text-secondary-foreground p-8 font-bold text-xl uppercase hover:bg-foreground hover:text-background transition-all duration-300">
             Run AI Scoring
-          </Badge>
-          <Badge variant="outline" className="px-4 py-2 cursor-pointer hover:bg-primary/5 transition-colors">
+          </button>
+          <button className="bg-card text-foreground p-8 font-bold text-xl uppercase border-2 border-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300">
             Generate Social Copy
-          </Badge>
+          </button>
         </div>
-      </Card>
+      </div>
     </div>
   );
 }

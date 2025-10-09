@@ -56,6 +56,11 @@ export default {
         'gradient-primary': 'var(--gradient-primary)',
         'gradient-hero': 'var(--gradient-hero)',
         'gradient-card': 'var(--gradient-card)',
+        'gradient-split-black': 'var(--gradient-split-black)',
+        'gradient-split-orange': 'var(--gradient-split-orange)',
+      },
+      fontFamily: {
+        'sans': ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
       },
       boxShadow: {
         'sm': 'var(--shadow-sm)',

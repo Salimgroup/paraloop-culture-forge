@@ -39,57 +39,86 @@ export default function Feed() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-primary via-background to-background">
-      <div className="max-w-5xl mx-auto px-4 py-10">
-        <h1 className="text-4xl font-bold">Paraloop Culture Feed</h1>
-        <p className="text-muted-foreground mt-2">Daily wellness-first reporting on globalization, tech, and culture.</p>
+    <div className="min-h-screen bg-background">
+      {/* Hero Section - Bold Typography */}
+      <div className="bg-gradient-hero py-32">
+        <div className="max-w-7xl mx-auto px-8">
+          <div className="w-1/2">
+            <h1 className="text-9xl font-black mb-6 leading-none">
+              CULTURE<br/>
+              <span className="text-primary">FEED</span>
+            </h1>
+            <p className="text-2xl font-medium uppercase tracking-wide">
+              Daily wellness-first reporting.<br/>
+              Globalization. Tech. Culture.
+            </p>
+          </div>
+        </div>
+      </div>
 
-        <div className="mt-6 flex flex-wrap gap-2">
-          <Badge 
-            variant={!currentTag ? "default" : "outline"}
-            className="cursor-pointer"
+      <div className="max-w-7xl mx-auto px-8 py-16">
+        {/* Tag Filters */}
+        <div className="mb-16 flex flex-wrap gap-4">
+          <button 
+            className={`px-8 py-4 font-bold uppercase text-sm tracking-wider transition-all ${
+              !currentTag 
+                ? "bg-primary text-primary-foreground" 
+                : "bg-card text-foreground hover:bg-muted"
+            }`}
             onClick={() => setTag(undefined)}
           >
             All
-          </Badge>
+          </button>
           {TAGS.map(t => (
-            <Badge
+            <button
               key={t}
-              variant={currentTag === t ? "default" : "outline"}
-              className="cursor-pointer"
+              className={`px-8 py-4 font-bold uppercase text-sm tracking-wider transition-all ${
+                currentTag === t 
+                  ? "bg-primary text-primary-foreground" 
+                  : "bg-card text-foreground hover:bg-muted"
+              }`}
               onClick={() => setTag(t)}
             >
               {t}
-            </Badge>
+            </button>
           ))}
         </div>
 
-        <div className="grid md:grid-cols-2 gap-5 mt-6">
+        {/* Articles Grid */}
+        <div className="grid md:grid-cols-2 gap-8">
           {loading ? (
             Array.from({ length: 6 }).map((_, i) => (
-              <Card key={i} className="p-5">
-                <Skeleton className="h-6 w-3/4" />
-                <Skeleton className="h-4 w-full mt-3" />
-                <Skeleton className="h-4 w-full mt-2" />
-                <Skeleton className="h-8 w-32 mt-4" />
-              </Card>
+              <div key={i} className="bg-card p-12">
+                <Skeleton className="h-8 w-3/4 mb-6 bg-muted" />
+                <Skeleton className="h-4 w-full mb-3 bg-muted" />
+                <Skeleton className="h-4 w-full mb-3 bg-muted" />
+                <Skeleton className="h-10 w-40 mt-8 bg-muted" />
+              </div>
             ))
           ) : articles.length === 0 ? (
-            <div className="col-span-2 text-center py-16 text-muted-foreground">
-              <div className="text-2xl font-semibold">Nothing here yet</div>
-              <div className="mt-2">Check back after the morning brief.</div>
+            <div className="col-span-2 text-center py-32 bg-card">
+              <div className="text-6xl font-black mb-4">NOTHING HERE YET</div>
+              <div className="text-xl text-muted-foreground uppercase tracking-wider">Check back after the morning brief.</div>
             </div>
           ) : (
             articles.map((a) => (
-              <Card key={a.id} className="p-5 hover:bg-accent/50 transition cursor-pointer">
+              <div key={a.id} className="bg-card p-12 hover:bg-muted group transition-all duration-300 border-l-4 border-transparent hover:border-primary">
                 <a href={`/article/${a.seo_slug}`}>
-                  <h3 className="text-lg font-semibold">{a.headline_paraloop}</h3>
-                  <p className="text-sm text-muted-foreground mt-2 line-clamp-3">{a.summary_paraloop}</p>
-                  <div className="flex items-center gap-3 mt-4 text-xs text-muted-foreground">
-                    <Badge variant="secondary">{a.outlet || "culture"}</Badge>
-                    <span>{new Date(a.source_published_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                  <h3 className="text-3xl font-black mb-6 group-hover:text-primary transition-colors uppercase leading-tight">
+                    {a.headline_paraloop}
+                  </h3>
+                  <p className="text-base text-muted-foreground mb-8 line-clamp-3 leading-relaxed">
+                    {a.summary_paraloop}
+                  </p>
+                  <div className="flex items-center gap-6 text-xs uppercase font-bold tracking-wider">
+                    <span className="bg-primary text-primary-foreground px-4 py-2">
+                      {a.outlet || "culture"}
+                    </span>
+                    <span className="text-muted-foreground">
+                      {new Date(a.source_published_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    </span>
                     <a 
-                      className="underline hover:text-foreground" 
+                      className="text-primary hover:text-foreground transition-colors" 
                       href={a.canonical_url} 
                       target="_blank" 
                       rel="noreferrer"
@@ -99,7 +128,7 @@ export default function Feed() {
                     </a>
                   </div>
                 </a>
-              </Card>
+              </div>
             ))
           )}
         </div>
