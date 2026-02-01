@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -7,9 +8,12 @@ import {
   Music2, 
   Shirt, 
   Globe,
-  TrendingUp
+  TrendingUp,
+  Send
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import { SocialShareButtons } from "./SocialShareButtons";
 
 type CultureArticle = {
@@ -51,9 +55,31 @@ type CultureArticleCardProps = {
 };
 
 export function CultureArticleCard({ article }: CultureArticleCardProps) {
+  const [isPosting, setIsPosting] = useState(false);
   const config = categoryConfig[article.category || 'culture'] || categoryConfig.culture;
   const Icon = config.icon;
   const vibeGradient = vibeColors[article.paraloop_vibe || ''] || 'from-primary to-purple-400';
+
+  const handlePostToTwitter = async () => {
+    setIsPosting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('post-to-twitter', {
+        body: { article_id: article.id }
+      });
+      
+      if (error) throw error;
+      
+      toast.success('Posted to Twitter!', {
+        description: `Tweet ID: ${data.tweet_id}`
+      });
+    } catch (err) {
+      toast.error('Failed to post', {
+        description: (err as Error).message
+      });
+    } finally {
+      setIsPosting(false);
+    }
+  };
 
   return (
     <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300 bg-card/50 backdrop-blur border-border/50">
@@ -102,12 +128,24 @@ export function CultureArticleCard({ article }: CultureArticleCardProps) {
           </Badge>
         )}
 
-        {/* Social Share */}
-        <SocialShareButtons 
-          url={article.article_url} 
-          title={article.paraloop_headline || article.title}
-          summary={article.paraloop_analysis || article.excerpt || undefined}
-        />
+        {/* Social Share + Post */}
+        <div className="flex items-center justify-between">
+          <SocialShareButtons 
+            url={article.article_url} 
+            title={article.paraloop_headline || article.title}
+            summary={article.paraloop_analysis || article.excerpt || undefined}
+          />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handlePostToTwitter}
+            disabled={isPosting}
+            className="gap-1"
+          >
+            <Send className="w-3 h-3" />
+            {isPosting ? 'Posting...' : 'Post'}
+          </Button>
+        </div>
 
         {/* Footer */}
         <div className="flex items-center justify-between pt-2 border-t border-border/50">
