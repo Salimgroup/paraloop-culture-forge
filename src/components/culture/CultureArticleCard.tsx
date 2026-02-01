@@ -15,6 +15,7 @@ import { formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { SocialShareButtons } from "./SocialShareButtons";
+import { useUserRole } from "@/hooks/useUserRole";
 
 type CultureArticle = {
   id: string;
@@ -56,6 +57,7 @@ type CultureArticleCardProps = {
 
 export function CultureArticleCard({ article }: CultureArticleCardProps) {
   const [isPosting, setIsPosting] = useState(false);
+  const { canManageContent } = useUserRole();
   const config = categoryConfig[article.category || 'culture'] || categoryConfig.culture;
   const Icon = config.icon;
   const vibeGradient = vibeColors[article.paraloop_vibe || ''] || 'from-primary to-purple-400';
@@ -135,16 +137,18 @@ export function CultureArticleCard({ article }: CultureArticleCardProps) {
             title={article.paraloop_headline || article.title}
             summary={article.paraloop_analysis || article.excerpt || undefined}
           />
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handlePostToTwitter}
-            disabled={isPosting}
-            className="gap-1"
-          >
-            <Send className="w-3 h-3" />
-            {isPosting ? 'Posting...' : 'Post'}
-          </Button>
+          {canManageContent && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handlePostToTwitter}
+              disabled={isPosting}
+              className="gap-1"
+            >
+              <Send className="w-3 h-3" />
+              {isPosting ? 'Posting...' : 'Post'}
+            </Button>
+          )}
         </div>
 
         {/* Footer */}

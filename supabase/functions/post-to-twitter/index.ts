@@ -93,6 +93,31 @@ Deno.serve(async (req) => {
     
     console.log(`User ${user.userId} requesting Twitter post`);
 
+    // Check if user has admin or editor role
+    const supabaseAuth = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+
+    const { data: isAdmin } = await supabaseAuth.rpc('has_role', {
+      _user_id: user.userId,
+      _role: 'admin'
+    });
+
+    if (!isAdmin) {
+      const { data: isEditor } = await supabaseAuth.rpc('has_role', {
+        _user_id: user.userId,
+        _role: 'editor'
+      });
+      
+      if (!isEditor) {
+        console.warn(`User ${user.userId} attempted Twitter post without permission`);
+        return unauthorizedResponse('Admin or Editor role required to post to Twitter');
+      }
+    }
+
+    console.log(`User ${user.userId} authorized for Twitter post (admin: ${isAdmin})`);
+
     // Parse and validate input
     let body: unknown;
     try {
