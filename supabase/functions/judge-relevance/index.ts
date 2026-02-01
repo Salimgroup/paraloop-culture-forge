@@ -1,9 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { corsHeaders, verifyHmacSignature, unauthorizedResponse, badRequestResponse } from "../_shared/auth.ts";
+import { judgeRelevanceSchema, parseJsonBody } from "../_shared/validation.ts";
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -11,7 +8,27 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { article } = await req.json();
+    // Verify HMAC signature for automated/cron calls
+    const isValidHmac = await verifyHmacSignature(req);
+    if (!isValidHmac) {
+      console.error('Invalid HMAC signature for judge-relevance');
+      return unauthorizedResponse('Invalid or missing HMAC signature');
+    }
+    
+    // Parse and validate input
+    let body: unknown;
+    try {
+      body = await parseJsonBody(req, 50); // 50KB max
+    } catch (error) {
+      return badRequestResponse(error instanceof Error ? error.message : 'Invalid request body');
+    }
+    
+    const validation = judgeRelevanceSchema.safeParse(body);
+    if (!validation.success) {
+      return badRequestResponse('Validation failed', validation.error.flatten());
+    }
+    
+    const { article } = validation.data;
     
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {

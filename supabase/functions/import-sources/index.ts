@@ -1,9 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { corsHeaders, verifyHmacSignature, unauthorizedResponse } from "../_shared/auth.ts";
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -11,6 +7,13 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Verify HMAC signature for automated/admin calls
+    const isValidHmac = await verifyHmacSignature(req);
+    if (!isValidHmac) {
+      console.error('Invalid HMAC signature for import-sources');
+      return unauthorizedResponse('Invalid or missing HMAC signature');
+    }
+
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
