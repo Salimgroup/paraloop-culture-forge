@@ -34,9 +34,8 @@ type CultureArticle = {
 };
 
 const categoryConfig: Record<string, { icon: any; color: string; label: string }> = {
-  "hip-hop": { icon: Music2, color: "bg-purple-500/10 text-purple-400 border-purple-500/20", label: "Hip-Hop" },
+  "music": { icon: Music2, color: "bg-purple-500/10 text-purple-400 border-purple-500/20", label: "Music" },
   "streetwear": { icon: Shirt, color: "bg-orange-500/10 text-orange-400 border-orange-500/20", label: "Streetwear" },
-  "music": { icon: Music2, color: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20", label: "Music" },
   "culture": { icon: Globe, color: "bg-pink-500/10 text-pink-400 border-pink-500/20", label: "Culture" },
   "fine-arts": { icon: Sparkles, color: "bg-amber-500/10 text-amber-400 border-amber-500/20", label: "Fine Arts" },
   "business": { icon: TrendingUp, color: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20", label: "Business" },
@@ -100,9 +99,8 @@ export function CultureFeed() {
 
   const categories = [
     { value: 'all', label: 'All Culture' },
-    { value: 'hip-hop', label: '🎤 Hip-Hop' },
+    { value: 'music', label: '🎤 Music' },
     { value: 'streetwear', label: '👟 Streetwear' },
-    { value: 'music', label: '🎶 Music' },
     { value: 'culture', label: '🌍 Culture' },
     { value: 'fine-arts', label: '🎨 Fine Arts' },
     { value: 'business', label: '💼 Business' },
