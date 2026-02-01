@@ -109,6 +109,7 @@ export type Database = {
           paraloop_analysis: string | null
           paraloop_headline: string | null
           paraloop_vibe: string | null
+          published: boolean
           published_at: string | null
           relevance_score: number | null
           scraped_at: string
@@ -129,6 +130,7 @@ export type Database = {
           paraloop_analysis?: string | null
           paraloop_headline?: string | null
           paraloop_vibe?: string | null
+          published?: boolean
           published_at?: string | null
           relevance_score?: number | null
           scraped_at?: string
@@ -149,6 +151,7 @@ export type Database = {
           paraloop_analysis?: string | null
           paraloop_headline?: string | null
           paraloop_vibe?: string | null
+          published?: boolean
           published_at?: string | null
           relevance_score?: number | null
           scraped_at?: string
