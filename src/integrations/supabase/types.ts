@@ -285,6 +285,13 @@ export type Database = {
             referencedRelation: "curated_articles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "social_posts_curated_article_id_fkey"
+            columns: ["curated_article_id"]
+            isOneToOne: false
+            referencedRelation: "curated_articles_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       sources: {
@@ -355,7 +362,42 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      curated_articles_public: {
+        Row: {
+          author: string | null
+          canonical_url: string | null
+          headline_paraloop: string | null
+          id: string | null
+          outlet: string | null
+          published_at: string | null
+          source_published_at: string | null
+          source_region: string | null
+          summary_paraloop: string | null
+        }
+        Insert: {
+          author?: string | null
+          canonical_url?: string | null
+          headline_paraloop?: string | null
+          id?: string | null
+          outlet?: string | null
+          published_at?: string | null
+          source_published_at?: string | null
+          source_region?: string | null
+          summary_paraloop?: string | null
+        }
+        Update: {
+          author?: string | null
+          canonical_url?: string | null
+          headline_paraloop?: string | null
+          id?: string | null
+          outlet?: string | null
+          published_at?: string | null
+          source_published_at?: string | null
+          source_region?: string | null
+          summary_paraloop?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       has_role: {
