@@ -97,6 +97,69 @@ export type Database = {
           },
         ]
       }
+      culture_articles: {
+        Row: {
+          analyzed_at: string | null
+          article_url: string
+          category: string | null
+          created_at: string
+          excerpt: string | null
+          id: string
+          image_url: string | null
+          paraloop_analysis: string | null
+          paraloop_headline: string | null
+          paraloop_vibe: string | null
+          published_at: string | null
+          relevance_score: number | null
+          scraped_at: string
+          source_name: string
+          source_url: string
+          tags: string[] | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          analyzed_at?: string | null
+          article_url: string
+          category?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          image_url?: string | null
+          paraloop_analysis?: string | null
+          paraloop_headline?: string | null
+          paraloop_vibe?: string | null
+          published_at?: string | null
+          relevance_score?: number | null
+          scraped_at?: string
+          source_name: string
+          source_url: string
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          analyzed_at?: string | null
+          article_url?: string
+          category?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          image_url?: string | null
+          paraloop_analysis?: string | null
+          paraloop_headline?: string | null
+          paraloop_vibe?: string | null
+          published_at?: string | null
+          relevance_score?: number | null
+          scraped_at?: string
+          source_name?: string
+          source_url?: string
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       curated_articles: {
         Row: {
           actions_next: string[]
