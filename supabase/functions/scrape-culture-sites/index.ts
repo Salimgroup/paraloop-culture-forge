@@ -7,16 +7,16 @@ const corsHeaders = {
 
 // Culture sites to scrape
 const CULTURE_SITES = [
-  // Hip-Hop & Music
-  { name: "Hypebeast", url: "https://hypebeast.com", category: "streetwear" },
-  { name: "Complex", url: "https://www.complex.com/music", category: "hip-hop" },
+  // Music & Hip-Hop
+  { name: "Hypebeast", url: "https://hypebeast.com", category: "music" },
+  { name: "Complex", url: "https://www.complex.com/music", category: "music" },
   { name: "Highsnobiety", url: "https://www.highsnobiety.com", category: "streetwear" },
-  { name: "REVOLT", url: "https://www.revolt.tv", category: "hip-hop" },
-  { name: "VIBE", url: "https://www.vibe.com", category: "hip-hop" },
-  { name: "Okayplayer", url: "https://www.okayplayer.com", category: "hip-hop" },
+  { name: "REVOLT", url: "https://www.revolt.tv", category: "music" },
+  { name: "VIBE", url: "https://www.vibe.com", category: "music" },
+  { name: "Okayplayer", url: "https://www.okayplayer.com", category: "music" },
   { name: "The FADER", url: "https://www.thefader.com", category: "music" },
-  { name: "HotNewHipHop", url: "https://www.hotnewhiphop.com", category: "hip-hop" },
-  { name: "HipHopDX", url: "https://hiphopdx.com", category: "hip-hop" },
+  { name: "HotNewHipHop", url: "https://www.hotnewhiphop.com", category: "music" },
+  { name: "HipHopDX", url: "https://hiphopdx.com", category: "music" },
   { name: "Afropunk", url: "https://afropunk.com", category: "culture" },
   
   // Fine Arts - Market & Institutional
