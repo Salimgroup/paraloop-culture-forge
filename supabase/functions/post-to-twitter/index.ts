@@ -1,5 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { corsHeaders, verifyUserAuth, unauthorizedResponse, badRequestResponse } from "../_shared/auth.ts";
+import { verifyUserAuth, unauthorizedResponse, badRequestResponse } from "../_shared/auth.ts";
+import { getRestrictedCorsHeaders } from "../_shared/cors.ts";
 import { postToTwitterSchema, parseJsonBody } from "../_shared/validation.ts";
 
 // Generate HMAC-SHA1 signature using Web Crypto API
@@ -80,6 +81,9 @@ async function generateOAuthHeader(
 }
 
 Deno.serve(async (req) => {
+  // Use restricted CORS for this authenticated write endpoint
+  const corsHeaders = getRestrictedCorsHeaders(req);
+  
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -88,7 +92,10 @@ Deno.serve(async (req) => {
     // Verify user authentication
     const user = await verifyUserAuth(req);
     if (!user) {
-      return unauthorizedResponse('Authentication required to post to Twitter');
+      return new Response(
+        JSON.stringify({ error: 'Authentication required to post to Twitter' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
     
     console.log(`User ${user.userId} requesting Twitter post`);
@@ -118,17 +125,53 @@ Deno.serve(async (req) => {
 
     console.log(`User ${user.userId} authorized for Twitter post (admin: ${isAdmin})`);
 
+    // Rate limiting: Check daily post count
+    const { data: todayPosts, error: countError } = await supabaseAuth
+      .from('social_posts')
+      .select('id', { count: 'exact', head: true })
+      .eq('platform', 'twitter')
+      .gte('posted_at', new Date(new Date().setHours(0, 0, 0, 0)).toISOString());
+
+    if (!countError && todayPosts !== null) {
+      const postCount = (todayPosts as unknown as { count: number }).count || 0;
+      if (postCount >= 20) {
+        console.warn(`User ${user.userId} hit daily Twitter posting limit`);
+        return new Response(
+          JSON.stringify({ error: 'Daily Twitter posting limit reached (20 posts)' }),
+          { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+    }
+
+    // Check for rapid posting (more than 3 posts in last 5 minutes)
+    const { data: recentPosts } = await supabaseAuth
+      .from('social_posts')
+      .select('posted_at')
+      .eq('platform', 'twitter')
+      .gte('posted_at', new Date(Date.now() - 5 * 60 * 1000).toISOString())
+      .limit(3);
+
+    if (recentPosts && recentPosts.length >= 3) {
+      console.warn(`⚠️ Rapid Twitter posting detected for user ${user.userId} - possible automation or compromise`);
+    }
+
     // Parse and validate input
     let body: unknown;
     try {
       body = await parseJsonBody(req);
     } catch (error) {
-      return badRequestResponse(error instanceof Error ? error.message : 'Invalid request body');
+      return new Response(
+        JSON.stringify({ error: error instanceof Error ? error.message : 'Invalid request body' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
     
     const validation = postToTwitterSchema.safeParse(body);
     if (!validation.success) {
-      return badRequestResponse('Validation failed', validation.error.flatten());
+      return new Response(
+        JSON.stringify({ error: 'Validation failed', details: validation.error.flatten() }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
     
     const { article_id, custom_text } = validation.data;
@@ -138,10 +181,10 @@ Deno.serve(async (req) => {
     const TWITTER_ACCESS_TOKEN = Deno.env.get('TWITTER_ACCESS_TOKEN');
     const TWITTER_ACCESS_TOKEN_SECRET = Deno.env.get('TWITTER_ACCESS_TOKEN_SECRET');
 
-    if (!TWITTER_CONSUMER_KEY) throw new Error('TWITTER_CONSUMER_KEY is not configured');
-    if (!TWITTER_CONSUMER_SECRET) throw new Error('TWITTER_CONSUMER_SECRET is not configured');
-    if (!TWITTER_ACCESS_TOKEN) throw new Error('TWITTER_ACCESS_TOKEN is not configured');
-    if (!TWITTER_ACCESS_TOKEN_SECRET) throw new Error('TWITTER_ACCESS_TOKEN_SECRET is not configured');
+    if (!TWITTER_CONSUMER_KEY) throw new Error('Twitter API configuration missing');
+    if (!TWITTER_CONSUMER_SECRET) throw new Error('Twitter API configuration missing');
+    if (!TWITTER_ACCESS_TOKEN) throw new Error('Twitter API configuration missing');
+    if (!TWITTER_ACCESS_TOKEN_SECRET) throw new Error('Twitter API configuration missing');
 
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
