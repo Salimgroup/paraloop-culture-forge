@@ -7,6 +7,7 @@ const corsHeaders = {
 
 // Culture sites to scrape
 const CULTURE_SITES = [
+  // Hip-Hop & Music
   { name: "Hypebeast", url: "https://hypebeast.com", category: "streetwear" },
   { name: "Complex", url: "https://www.complex.com/music", category: "hip-hop" },
   { name: "Highsnobiety", url: "https://www.highsnobiety.com", category: "streetwear" },
@@ -17,6 +18,18 @@ const CULTURE_SITES = [
   { name: "HotNewHipHop", url: "https://www.hotnewhiphop.com", category: "hip-hop" },
   { name: "HipHopDX", url: "https://hiphopdx.com", category: "hip-hop" },
   { name: "Afropunk", url: "https://afropunk.com", category: "culture" },
+  // Black Fine Arts
+  { name: "Culture Type", url: "https://www.culturetype.com", category: "fine-arts" },
+  { name: "Black Art in America", url: "https://blackartinamerica.com", category: "fine-arts" },
+  { name: "Artnet Black Artists", url: "https://news.artnet.com/art-world/black-artists", category: "fine-arts" },
+  { name: "Hyperallergic", url: "https://hyperallergic.com", category: "fine-arts" },
+  // Black-Owned Business
+  { name: "Black Enterprise", url: "https://www.blackenterprise.com", category: "business" },
+  { name: "AfroTech", url: "https://afrotech.com", category: "business" },
+  { name: "Essence Business", url: "https://www.essence.com/lifestyle/money-career", category: "business" },
+  { name: "Blavity", url: "https://blavity.com/business", category: "business" },
+  { name: "How We Made It In Africa", url: "https://www.howwemadeitinafrica.com", category: "business" },
+  { name: "Disrupt Africa", url: "https://disrupt-africa.com", category: "business" },
 ];
 
 Deno.serve(async (req) => {
