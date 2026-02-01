@@ -1,9 +1,16 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Validate query parameters
+const querySchema = z.object({
+  category: z.string().max(50).optional(),
+  limit: z.coerce.number().int().min(1).max(100).optional().default(24),
+});
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -17,8 +24,21 @@ Deno.serve(async (req) => {
     );
 
     const url = new URL(req.url);
-    const category = url.searchParams.get('category');
-    const limit = parseInt(url.searchParams.get('limit') || '24');
+    
+    // Validate query parameters
+    const queryValidation = querySchema.safeParse({
+      category: url.searchParams.get('category') || undefined,
+      limit: url.searchParams.get('limit') || undefined,
+    });
+    
+    if (!queryValidation.success) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid query parameters', details: queryValidation.error.flatten() }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    const { category, limit } = queryValidation.data;
 
     let query = supabase
       .from('culture_articles')

@@ -1,9 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { corsHeaders, verifyUserAuth, unauthorizedResponse, badRequestResponse } from "../_shared/auth.ts";
+import { postToTwitterSchema, parseJsonBody } from "../_shared/validation.ts";
 
 // Generate HMAC-SHA1 signature using Web Crypto API
 async function hmacSha1(key: string, message: string): Promise<string> {
@@ -64,7 +61,6 @@ async function generateOAuthHeader(
     oauth_version: "1.0",
   };
 
-  // Generate signature WITHOUT body params for POST with JSON
   const signature = await generateOAuthSignature(
     method,
     url,
@@ -89,7 +85,28 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { article_id, custom_text } = await req.json();
+    // Verify user authentication
+    const user = await verifyUserAuth(req);
+    if (!user) {
+      return unauthorizedResponse('Authentication required to post to Twitter');
+    }
+    
+    console.log(`User ${user.userId} requesting Twitter post`);
+
+    // Parse and validate input
+    let body: unknown;
+    try {
+      body = await parseJsonBody(req);
+    } catch (error) {
+      return badRequestResponse(error instanceof Error ? error.message : 'Invalid request body');
+    }
+    
+    const validation = postToTwitterSchema.safeParse(body);
+    if (!validation.success) {
+      return badRequestResponse('Validation failed', validation.error.flatten());
+    }
+    
+    const { article_id, custom_text } = validation.data;
 
     const TWITTER_CONSUMER_KEY = Deno.env.get('TWITTER_CONSUMER_KEY');
     const TWITTER_CONSUMER_SECRET = Deno.env.get('TWITTER_CONSUMER_SECRET');
@@ -114,7 +131,7 @@ Deno.serve(async (req) => {
       .single();
 
     if (articleError || !article) {
-      throw new Error('Article not found');
+      return badRequestResponse('Article not found');
     }
 
     // Generate tweet text
@@ -166,7 +183,7 @@ Deno.serve(async (req) => {
         posted_at: new Date().toISOString(),
       });
 
-    console.log('Successfully posted to Twitter:', responseData.data?.id);
+    console.log(`User ${user.userId} successfully posted to Twitter:`, responseData.data?.id);
 
     return new Response(
       JSON.stringify({ 

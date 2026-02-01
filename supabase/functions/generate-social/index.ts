@@ -1,9 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { corsHeaders, verifyHmacSignature, unauthorizedResponse, badRequestResponse } from "../_shared/auth.ts";
+import { generateSocialSchema, parseJsonBody } from "../_shared/validation.ts";
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -11,7 +8,27 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { curatedArticleId, platform } = await req.json();
+    // Verify HMAC signature for automated/cron calls
+    const isValidHmac = await verifyHmacSignature(req);
+    if (!isValidHmac) {
+      console.error('Invalid HMAC signature for generate-social');
+      return unauthorizedResponse('Invalid or missing HMAC signature');
+    }
+    
+    // Parse and validate input
+    let body: unknown;
+    try {
+      body = await parseJsonBody(req);
+    } catch (error) {
+      return badRequestResponse(error instanceof Error ? error.message : 'Invalid request body');
+    }
+    
+    const validation = generateSocialSchema.safeParse(body);
+    if (!validation.success) {
+      return badRequestResponse('Validation failed', validation.error.flatten());
+    }
+    
+    const { curatedArticleId, platform } = validation.data;
     
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {
@@ -31,7 +48,7 @@ Deno.serve(async (req) => {
       .single();
 
     if (fetchError || !article) {
-      throw new Error('Article not found');
+      return badRequestResponse('Article not found');
     }
 
     console.log('Generating social copy for:', article.headline_paraloop);
@@ -101,7 +118,7 @@ Deno.serve(async (req) => {
       .from('social_posts')
       .insert({
         curated_article_id: curatedArticleId,
-        platform: platform || 'twitter',
+        platform: platform,
         caption: socialCopy.caption,
         hashtag: socialCopy.hashtag
       })

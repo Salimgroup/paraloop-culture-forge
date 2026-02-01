@@ -1,9 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { corsHeaders, verifyHmacSignature, unauthorizedResponse } from "../_shared/auth.ts";
 
 // Culture sites to scrape
 const CULTURE_SITES = [
@@ -84,6 +80,15 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Verify HMAC signature for automated/cron calls
+    const isValidHmac = await verifyHmacSignature(req);
+    if (!isValidHmac) {
+      console.error('Invalid HMAC signature for scrape-culture-sites');
+      return unauthorizedResponse('Invalid or missing HMAC signature');
+    }
+    
+    console.log('HMAC verified - Starting culture sites scrape...');
+
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
@@ -94,8 +99,7 @@ Deno.serve(async (req) => {
       throw new Error('FIRECRAWL_API_KEY is not configured');
     }
 
-    console.log('Starting culture sites scrape...');
-    const results: any[] = [];
+    const results: { source: string; title: string; url: string }[] = [];
 
     // Scrape each site
     for (const site of CULTURE_SITES.slice(0, 5)) { // Limit to 5 sites per run

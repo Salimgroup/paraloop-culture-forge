@@ -1,9 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { corsHeaders, verifyHmacSignature, unauthorizedResponse } from "../_shared/auth.ts";
 
 const PARALOOP_SYSTEM_PROMPT = `You are Paraloop's culture analyst - a warm, insightful voice celebrating hip-hop, streetwear, and urban culture.
 
@@ -29,6 +25,15 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Verify HMAC signature for automated/cron calls
+    const isValidHmac = await verifyHmacSignature(req);
+    if (!isValidHmac) {
+      console.error('Invalid HMAC signature for analyze-culture-articles');
+      return unauthorizedResponse('Invalid or missing HMAC signature');
+    }
+    
+    console.log('HMAC verified - Starting culture article analysis...');
+
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
@@ -56,7 +61,7 @@ Deno.serve(async (req) => {
     }
 
     console.log(`Analyzing ${articles.length} articles...`);
-    const analyzed: any[] = [];
+    const analyzed: { id: string; headline: string }[] = [];
 
     for (const article of articles) {
       try {
