@@ -9,6 +9,26 @@ import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
 
+// Password validation - enforces strong password requirements
+function validatePassword(password: string): string | null {
+  if (password.length < 12) {
+    return 'Password must be at least 12 characters';
+  }
+  
+  const hasUpper = /[A-Z]/.test(password);
+  const hasLower = /[a-z]/.test(password);
+  const hasNumber = /[0-9]/.test(password);
+  const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+  
+  const complexityCount = [hasUpper, hasLower, hasNumber, hasSpecial].filter(Boolean).length;
+  
+  if (complexityCount < 3) {
+    return 'Password must include at least 3 of: uppercase, lowercase, numbers, special characters';
+  }
+  
+  return null;
+}
+
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -39,6 +59,14 @@ export default function Login() {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate password strength before submitting
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      toast.error(passwordError);
+      return;
+    }
+    
     setIsLoading(true);
     
     const { error } = await signUp(email, password);
@@ -122,8 +150,11 @@ export default function Login() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    minLength={6}
+                    minLength={12}
                   />
+                  <p className="text-xs text-muted-foreground">
+                    Min 12 characters with 3 of: uppercase, lowercase, numbers, special chars
+                  </p>
                 </div>
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
