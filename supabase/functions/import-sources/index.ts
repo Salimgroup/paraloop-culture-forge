@@ -1,5 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { corsHeaders, verifyHmacSignature, unauthorizedResponse } from "../_shared/auth.ts";
+import { corsHeaders, verifyHmacSignature, verifyUserAuth, unauthorizedResponse } from "../_shared/auth.ts";
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -7,11 +7,36 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Verify HMAC signature for automated/admin calls
+    // Dual authentication: HMAC for automation, JWT for user-triggered calls
     const isValidHmac = await verifyHmacSignature(req);
-    if (!isValidHmac) {
-      console.error('Invalid HMAC signature for import-sources');
-      return unauthorizedResponse('Invalid or missing HMAC signature');
+    let authenticated = isValidHmac;
+    
+    if (!authenticated) {
+      // Fall back to JWT authentication for user-triggered calls
+      const user = await verifyUserAuth(req);
+      if (user) {
+        const supabaseAdmin = createClient(
+          Deno.env.get('SUPABASE_URL') ?? '',
+          Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+        );
+        
+        // Check if user has admin role
+        const { data: isAdmin } = await supabaseAdmin.rpc('has_role', {
+          _user_id: user.userId,
+          _role: 'admin'
+        });
+        
+        authenticated = isAdmin;
+        if (!authenticated) {
+          console.error('User lacks admin role for import-sources');
+          return unauthorizedResponse('Admin role required');
+        }
+      }
+    }
+    
+    if (!authenticated) {
+      console.error('No valid authentication for import-sources');
+      return unauthorizedResponse('Authentication required');
     }
 
     const supabase = createClient(
