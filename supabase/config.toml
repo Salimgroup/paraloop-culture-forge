@@ -23,3 +23,6 @@ verify_jwt = false
 
 [functions.get-culture-feed]
 verify_jwt = false
+
+[functions.post-to-twitter]
+verify_jwt = false
