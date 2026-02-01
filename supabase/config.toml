@@ -14,3 +14,12 @@ verify_jwt = false
 
 [functions.get-feed]
 verify_jwt = false
+
+[functions.scrape-culture-sites]
+verify_jwt = false
+
+[functions.analyze-culture-articles]
+verify_jwt = false
+
+[functions.get-culture-feed]
+verify_jwt = false
