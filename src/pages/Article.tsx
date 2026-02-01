@@ -49,56 +49,34 @@ export default function Article() {
       <div className="max-w-3xl mx-auto px-4 py-10">
         <h1 className="text-4xl font-bold">{article.headline_paraloop}</h1>
         <div className="text-muted-foreground mt-2 text-sm flex items-center gap-3">
-          <span>{new Date(article.source_published_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
-          <a href={article.canonical_url} target="_blank" className="underline hover:text-foreground">
-            {new URL(article.canonical_url).hostname.replace(/^www\./, '')}
-          </a>
+          <span>{article.source_published_at ? new Date(article.source_published_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}</span>
+          {article.canonical_url && (
+            <a href={article.canonical_url} target="_blank" rel="noreferrer" className="underline hover:text-foreground">
+              {new URL(article.canonical_url).hostname.replace(/^www\./, '')}
+            </a>
+          )}
         </div>
         
         <p className="mt-6 leading-7">{article.summary_paraloop}</p>
 
-        <Card className="mt-6 p-4">
-          <div className="font-medium">TL;DR</div>
-          <ul className="list-disc pl-5 mt-2 space-y-1 text-muted-foreground">
-            {article.tl_dr_bullets?.map((b: string, i: number) => (
-              <li key={i}>{b}</li>
-            ))}
-          </ul>
-        </Card>
-
-        {article.pull_quote?.text && (
-          <figure className="mt-6 border-l-4 border-primary pl-4 italic">
-            "{article.pull_quote.text}"
-            <figcaption className="text-xs text-muted-foreground mt-2">
-              — {article.pull_quote.attribution}
-            </figcaption>
-          </figure>
-        )}
-
-        {article.wellness_angle && (
-          <Card className="mt-6 p-4 bg-accent">
-            <div className="font-medium">Wellness Angle</div>
-            <p className="mt-2 text-muted-foreground">{article.wellness_angle}</p>
-          </Card>
-        )}
-
-        {article.actions_next?.length > 0 && (
-          <div className="mt-6">
-            <div className="font-medium">Do Next</div>
-            <ul className="list-disc pl-5 mt-2 space-y-1 text-muted-foreground">
-              {article.actions_next.map((action: string, i: number) => (
-                <li key={i}>{action}</li>
-              ))}
-            </ul>
+        {/* Source attribution */}
+        <div className="mt-8 pt-6 border-t border-border">
+          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+            {article.outlet && <span className="font-medium">{article.outlet}</span>}
+            {article.author && <span>by {article.author}</span>}
+            {article.source_region && <span>• {article.source_region}</span>}
           </div>
-        )}
-
-        {article.social_caption && (
-          <Card className="mt-6 p-4">
-            <div className="font-medium mb-2">Share</div>
-            <p className="text-sm text-muted-foreground">{article.social_caption} #ParaloopCulture</p>
-          </Card>
-        )}
+          {article.canonical_url && (
+            <a 
+              href={article.canonical_url} 
+              target="_blank" 
+              rel="noreferrer"
+              className="inline-block mt-4 px-6 py-3 bg-primary text-primary-foreground font-bold uppercase text-sm tracking-wider hover:bg-primary/90 transition-colors"
+            >
+              Read Full Article →
+            </a>
+          )}
+        </div>
       </div>
     </div>
   );
