@@ -54,6 +54,28 @@ const CULTURE_SITES = [
   { name: "Caribbean Business Report", url: "https://caribbeanbusinessreport.com", category: "business" },
   { name: "How We Made It In Africa", url: "https://www.howwemadeitinafrica.com", category: "business" },
   { name: "Disrupt Africa", url: "https://disrupt-africa.com", category: "business" },
+  
+  // Architecture & Design
+  { name: "Dezeen", url: "https://www.dezeen.com", category: "design" },
+  { name: "ArchDaily", url: "https://www.archdaily.com", category: "design" },
+  { name: "Designboom", url: "https://www.designboom.com", category: "design" },
+  { name: "Wallpaper*", url: "https://www.wallpaper.com", category: "design" },
+  { name: "Dwell", url: "https://www.dwell.com", category: "design" },
+  { name: "Architectural Digest", url: "https://www.architecturaldigest.com", category: "design" },
+  { name: "The Spaces", url: "https://thespaces.com", category: "design" },
+  { name: "Curbed", url: "https://www.curbed.com", category: "design" },
+  { name: "Surface Magazine", url: "https://www.surfacemag.com", category: "design" },
+  { name: "Core77", url: "https://www.core77.com", category: "design" },
+  { name: "It's Nice That", url: "https://www.itsnicethat.com", category: "design" },
+  { name: "Creative Boom", url: "https://www.creativeboom.com", category: "design" },
+  { name: "FRAME", url: "https://frameweb.com", category: "design" },
+  { name: "Azure Magazine", url: "https://www.azuremagazine.com", category: "design" },
+  { name: "Metropolis", url: "https://metropolismag.com", category: "design" },
+  
+  // Black Architecture & Design
+  { name: "NOMA", url: "https://www.noma.net/news", category: "design" },
+  { name: "Curbed Black Architects", url: "https://archive.curbed.com/black-architects", category: "design" },
+  { name: "Design Indaba", url: "https://www.designindaba.com", category: "design" },
 ];
 
 Deno.serve(async (req) => {
