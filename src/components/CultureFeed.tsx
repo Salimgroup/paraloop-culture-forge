@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -8,9 +9,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { 
   Sparkles, 
   RefreshCw,
+  LogIn,
+  LogOut,
 } from "lucide-react";
 import { toast } from "sonner";
 import { CultureArticleCard } from "./culture/CultureArticleCard";
+import { useAuth } from "@/hooks/useAuth";
+import { useUserRole } from "@/hooks/useUserRole";
 
 type CultureArticle = {
   id: string;
@@ -31,8 +36,10 @@ type CultureArticle = {
 export function CultureFeed() {
   const [filter, setFilter] = useState<string>("all");
   const queryClient = useQueryClient();
+  const { isAuthenticated, signOut, user } = useAuth();
+  const { canManageContent } = useUserRole();
 
-  const { data: articles, isLoading, error } = useQuery({
+  const { data: articles, isLoading } = useQuery({
     queryKey: ['culture-feed', filter],
     queryFn: async () => {
       const { data, error } = await supabase.functions.invoke('get-culture-feed', {
@@ -51,7 +58,6 @@ export function CultureFeed() {
     },
     onSuccess: (data) => {
       toast.success(`Scraped ${data?.count || 0} new articles!`);
-      // Now analyze them
       analyzeMutation.mutate();
     },
     onError: (error) => {
@@ -89,7 +95,31 @@ export function CultureFeed() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20">
       <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Header */}
+        {/* Auth Header */}
+        <div className="flex items-center justify-end mb-6">
+          <div className="flex items-center gap-3">
+            {isAuthenticated ? (
+              <>
+                <span className="text-sm text-muted-foreground hidden sm:inline">
+                  {user?.email}
+                </span>
+                <Button variant="ghost" size="sm" onClick={() => signOut()}>
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sign Out
+                </Button>
+              </>
+            ) : (
+              <Button variant="outline" size="sm" asChild>
+                <Link to="/login">
+                  <LogIn className="w-4 h-4 mr-2" />
+                  Sign In
+                </Link>
+              </Button>
+            )}
+          </div>
+        </div>
+
+        {/* Hero */}
         <div className="text-center mb-10">
           <h1 className="text-5xl font-bold bg-gradient-to-r from-primary via-purple-400 to-pink-400 bg-clip-text text-transparent">
             Paraloop Culture
@@ -114,14 +144,16 @@ export function CultureFeed() {
               </Badge>
             ))}
           </div>
-          <Button
-            onClick={() => scrapeMutation.mutate()}
-            disabled={isRefreshing}
-            className="gap-2"
-          >
-            <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-            {isRefreshing ? 'Refreshing...' : 'Refresh Feed'}
-          </Button>
+          {canManageContent && (
+            <Button
+              onClick={() => scrapeMutation.mutate()}
+              disabled={isRefreshing}
+              className="gap-2"
+            >
+              <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+              {isRefreshing ? 'Refreshing...' : 'Refresh Feed'}
+            </Button>
+          )}
         </div>
 
         {/* Loading State */}
@@ -143,12 +175,17 @@ export function CultureFeed() {
             <Sparkles className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
             <h3 className="text-xl font-semibold mb-2">No articles yet</h3>
             <p className="text-muted-foreground mb-6">
-              Click "Refresh Feed" to scrape the latest culture articles and generate Paraloop analysis
+              {canManageContent 
+                ? 'Click "Refresh Feed" to scrape the latest culture articles and generate Paraloop analysis'
+                : 'Check back soon for fresh culture content!'
+              }
             </p>
-            <Button onClick={() => scrapeMutation.mutate()} disabled={isRefreshing}>
-              <RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
-              Start Scraping
-            </Button>
+            {canManageContent && (
+              <Button onClick={() => scrapeMutation.mutate()} disabled={isRefreshing}>
+                <RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+                Start Scraping
+              </Button>
+            )}
           </Card>
         )}
 
