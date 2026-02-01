@@ -370,6 +370,7 @@ export type Database = {
           id: string | null
           outlet: string | null
           published_at: string | null
+          seo_slug: string | null
           source_published_at: string | null
           source_region: string | null
           summary_paraloop: string | null
@@ -381,6 +382,7 @@ export type Database = {
           id?: string | null
           outlet?: string | null
           published_at?: string | null
+          seo_slug?: string | null
           source_published_at?: string | null
           source_region?: string | null
           summary_paraloop?: string | null
@@ -392,6 +394,7 @@ export type Database = {
           id?: string | null
           outlet?: string | null
           published_at?: string | null
+          seo_slug?: string | null
           source_published_at?: string | null
           source_region?: string | null
           summary_paraloop?: string | null

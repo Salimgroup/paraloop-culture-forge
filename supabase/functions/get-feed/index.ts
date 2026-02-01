@@ -41,27 +41,28 @@ Deno.serve(async (req) => {
     const { tag, slug } = queryValidation.data;
 
     // Use the public view to protect proprietary content from scraping
-    // This view only exposes: id, headline_paraloop, summary_paraloop, outlet, author, source_region, canonical_url, published_at, source_published_at
+    // This view only exposes: id, headline_paraloop, summary_paraloop, outlet, author, 
+    // source_region, canonical_url, published_at, source_published_at, seo_slug
     
-    // Get single article by slug - note: slug is not in public view, so we query by id if needed
-    // For now, we'll need to add seo_slug to the public view or handle differently
+    // Get single article by slug
     if (slug) {
-      // Query by matching headline (since seo_slug is proprietary)
-      // This is a limitation - consider adding seo_slug to public view if needed
       const { data, error } = await supabaseClient
         .from('curated_articles_public')
         .select('*')
-        .limit(1);
+        .eq('seo_slug', slug)
+        .single();
 
-      // Find by slug pattern in the list (seo_slug not in public view)
-      // For security, we return the public-safe fields only
-      if (error) throw error;
-      
-      // Since seo_slug is not in public view, return first match or null
-      // In production, consider adding seo_slug to the public view
-      const article = data?.[0] || null;
+      if (error) {
+        if (error.code === 'PGRST116') {
+          // No rows found
+          return new Response(JSON.stringify(null), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        throw error;
+      }
 
-      return new Response(JSON.stringify(article), {
+      return new Response(JSON.stringify(data), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
