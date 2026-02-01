@@ -18,16 +18,40 @@ const CULTURE_SITES = [
   { name: "HotNewHipHop", url: "https://www.hotnewhiphop.com", category: "hip-hop" },
   { name: "HipHopDX", url: "https://hiphopdx.com", category: "hip-hop" },
   { name: "Afropunk", url: "https://afropunk.com", category: "culture" },
-  // Black Fine Arts
-  { name: "Culture Type", url: "https://www.culturetype.com", category: "fine-arts" },
-  { name: "Black Art in America", url: "https://blackartinamerica.com", category: "fine-arts" },
-  { name: "Artnet Black Artists", url: "https://news.artnet.com/art-world/black-artists", category: "fine-arts" },
+  
+  // Fine Arts - Market & Institutional
+  { name: "Artsy", url: "https://www.artsy.net/articles", category: "fine-arts" },
+  { name: "Artnet", url: "https://news.artnet.com", category: "fine-arts" },
+  { name: "The Art Newspaper", url: "https://www.theartnewspaper.com", category: "fine-arts" },
   { name: "Hyperallergic", url: "https://hyperallergic.com", category: "fine-arts" },
-  // Black-Owned Business
+  { name: "Artforum", url: "https://www.artforum.com", category: "fine-arts" },
+  { name: "ARTnews", url: "https://www.artnews.com", category: "fine-arts" },
+  { name: "Frieze", url: "https://www.frieze.com", category: "fine-arts" },
+  { name: "Galerie Magazine", url: "https://www.galeriemagazine.com", category: "fine-arts" },
+  
+  // Black-Focused Fine Art
+  { name: "Culture Type", url: "https://www.culturetype.com", category: "fine-arts" },
+  { name: "Black Art In America", url: "https://blackartinamerica.com", category: "fine-arts" },
+  { name: "Sugarcane Magazine", url: "https://sugarcanemagazine.com", category: "fine-arts" },
+  { name: "NKA Journal", url: "https://nkajournal.org", category: "fine-arts" },
+  { name: "African Digital Art", url: "https://africandigitalart.com", category: "fine-arts" },
+  { name: "1-54 Art Fair", url: "https://1-54.com/news", category: "fine-arts" },
+  { name: "The Whitney", url: "https://whitney.org/exhibitions", category: "fine-arts" },
+  
+  // Black-Owned Business - Tier 1
   { name: "Black Enterprise", url: "https://www.blackenterprise.com", category: "business" },
+  { name: "Blavity", url: "https://blavity.com", category: "business" },
+  { name: "ForbesBLK", url: "https://www.forbes.com/blk", category: "business" },
   { name: "AfroTech", url: "https://afrotech.com", category: "business" },
+  { name: "The Plug", url: "https://tpinsights.com", category: "business" },
   { name: "Essence Business", url: "https://www.essence.com/lifestyle/money-career", category: "business" },
-  { name: "Blavity", url: "https://blavity.com/business", category: "business" },
+  
+  // Global Black Economy
+  { name: "TechCabal", url: "https://techcabal.com", category: "business" },
+  { name: "Semafor Africa", url: "https://www.semafor.com/africa", category: "business" },
+  { name: "African Business", url: "https://african.business", category: "business" },
+  { name: "Quartz Africa", url: "https://qz.com/africa", category: "business" },
+  { name: "Caribbean Business Report", url: "https://caribbeanbusinessreport.com", category: "business" },
   { name: "How We Made It In Africa", url: "https://www.howwemadeitinafrica.com", category: "business" },
   { name: "Disrupt Africa", url: "https://disrupt-africa.com", category: "business" },
 ];
