@@ -1,8 +1,8 @@
-# Security Remediation - COMPLETED
+# Security Remediation - COMPLETED ✅
 
 ## Implementation Summary
 
-All security issues from the comprehensive review have been addressed.
+All security issues from the comprehensive review have been addressed and verified.
 
 ---
 
@@ -10,15 +10,20 @@ All security issues from the comprehensive review have been addressed.
 
 ### ✅ Phase 1: Database Security (Complete)
 
-**Migration Applied:**
-- Created `app_role` enum (`admin`, `editor`, `viewer`)
-- Created `user_roles` table with RLS enabled
-- Created `has_role()` security definer function
-- Fixed RLS policies:
-  - `curated_articles`: Now only shows `published = true` content publicly
-  - `sources`: Removed public access (service-role only)
-  - `social_posts`: Now only shows `posted = true` content publicly
-- Added admin/editor management policies for all content tables
+**Migrations Applied:**
+
+1. **User Roles System**
+   - Created `app_role` enum (`admin`, `editor`, `viewer`)
+   - Created `user_roles` table with RLS enabled
+   - Created `has_role()` security definer function
+   - Added explicit deny policy for anonymous access
+
+2. **Fixed RLS Policies:**
+   - `curated_articles`: Only shows `published = true` content publicly
+   - `sources`: Admin-only access (private by design)
+   - `social_posts`: Only shows `posted = true` content publicly
+   - `articles`: Admin/editor management only (private by design)
+   - `culture_articles`: Added `published` column, requires both analysis and published flag
 
 ### ✅ Phase 2: Edge Function Authorization (Complete)
 
@@ -42,24 +47,37 @@ All security issues from the comprehensive review have been addressed.
 
 ---
 
-## Security Status
+## Final Security Status
 
 | Issue | Status | Resolution |
 |-------|--------|------------|
 | Unpublished editorial content exposed | ✅ Fixed | RLS restricts to `published = true` |
-| Content source strategy visible | ✅ Fixed | No public access policy |
+| Content source strategy visible | ✅ Fixed | Admin-only access (intentionally private) |
 | Social media strategy exposed | ✅ Fixed | RLS restricts to `posted = true` |
-| Articles table inaccessible | ℹ️ Intentional | Documented as private by design |
+| Articles table inaccessible | ✅ Fixed | Added admin/editor policies |
 | Twitter posting lacks authorization | ✅ Fixed | Role-based checks added |
+| User roles anonymous access | ✅ Fixed | Explicit deny policy added |
+| Culture articles premature exposure | ✅ Fixed | Added `published` column check |
 
 ---
 
-## Verification Checklist
+## Remaining Informational Notes
 
-- [x] Database migration applied
-- [x] Edge functions deployed with authorization
-- [x] Frontend auth hooks created
-- [x] Login page added
-- [x] Admin actions protected
-- [ ] Security scan re-run to confirm
-- [ ] Test anonymous access to verify restrictions
+These are **intentional design decisions**, not security issues:
+
+1. **Sources table is admin-only** - This is correct; source strategy is proprietary
+2. **Articles table is admin/editor-only** - This is correct; raw articles are internal workflow data
+
+---
+
+## Files Modified
+
+| File | Change |
+|------|--------|
+| `supabase/functions/post-to-twitter/index.ts` | Added role authorization |
+| `src/components/CultureFeed.tsx` | Protected admin actions |
+| `src/components/culture/CultureArticleCard.tsx` | Protected Post button |
+| `src/hooks/useAuth.ts` | Created |
+| `src/hooks/useUserRole.ts` | Created |
+| `src/pages/Login.tsx` | Created |
+| `src/App.tsx` | Added login route |
