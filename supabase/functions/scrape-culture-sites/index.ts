@@ -1,5 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { corsHeaders, verifyHmacSignature, unauthorizedResponse } from "../_shared/auth.ts";
+import { corsHeaders, verifyHmacSignature, verifyUserAuth, unauthorizedResponse } from "../_shared/auth.ts";
 
 // Culture sites to scrape
 const CULTURE_SITES = [
@@ -80,14 +80,43 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Verify HMAC signature for automated/cron calls
+    // Dual authentication: HMAC for cron/automation, JWT for user-triggered calls
     const isValidHmac = await verifyHmacSignature(req);
-    if (!isValidHmac) {
-      console.error('Invalid HMAC signature for scrape-culture-sites');
-      return unauthorizedResponse('Invalid or missing HMAC signature');
+    let authenticated = isValidHmac;
+    
+    if (!authenticated) {
+      // Fall back to JWT authentication for user-triggered calls
+      const user = await verifyUserAuth(req);
+      if (user) {
+        const supabaseAdmin = createClient(
+          Deno.env.get('SUPABASE_URL') ?? '',
+          Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+        );
+        
+        // Check if user has admin or editor role
+        const { data: isAdmin } = await supabaseAdmin.rpc('has_role', {
+          _user_id: user.userId,
+          _role: 'admin'
+        });
+        const { data: isEditor } = await supabaseAdmin.rpc('has_role', {
+          _user_id: user.userId,
+          _role: 'editor'
+        });
+        
+        authenticated = isAdmin || isEditor;
+        if (!authenticated) {
+          console.error('User lacks required role for scrape-culture-sites');
+          return unauthorizedResponse('Admin or editor role required');
+        }
+      }
     }
     
-    console.log('HMAC verified - Starting culture sites scrape...');
+    if (!authenticated) {
+      console.error('No valid authentication for scrape-culture-sites');
+      return unauthorizedResponse('Authentication required');
+    }
+    
+    console.log('Authentication verified - Starting culture sites scrape...');
 
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
