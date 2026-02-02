@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { 
   ExternalLink, 
   Sparkles, 
@@ -9,7 +10,8 @@ import {
   Shirt, 
   Globe,
   TrendingUp,
-  Send
+  Send,
+  ImageOff
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
@@ -85,6 +87,27 @@ export function CultureArticleCard({ article }: CultureArticleCardProps) {
 
   return (
     <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300 bg-card/50 backdrop-blur border-border/50">
+      {/* Article Image */}
+      {article.image_url ? (
+        <a href={article.article_url} target="_blank" rel="noopener noreferrer">
+          <AspectRatio ratio={16 / 9} className="bg-muted overflow-hidden">
+            <img
+              src={article.image_url}
+              alt={article.paraloop_headline || article.title}
+              className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
+              onError={(e) => {
+                // Hide broken images
+                (e.target as HTMLImageElement).style.display = 'none';
+              }}
+            />
+          </AspectRatio>
+        </a>
+      ) : (
+        <AspectRatio ratio={16 / 9} className="bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center">
+          <ImageOff className="w-8 h-8 text-muted-foreground/30" />
+        </AspectRatio>
+      )}
+
       {/* Vibe Banner */}
       {article.paraloop_vibe && (
         <div className={`h-1.5 bg-gradient-to-r ${vibeGradient}`} />
