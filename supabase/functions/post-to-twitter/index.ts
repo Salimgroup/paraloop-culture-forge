@@ -1,5 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { verifyUserAuth, unauthorizedResponse, badRequestResponse } from "../_shared/auth.ts";
+import { verifyUserAuth, verifyHmacSignature, unauthorizedResponse, badRequestResponse } from "../_shared/auth.ts";
 import { getRestrictedCorsHeaders } from "../_shared/cors.ts";
 import { postToTwitterSchema, parseJsonBody } from "../_shared/validation.ts";
 
@@ -80,6 +80,43 @@ async function generateOAuthHeader(
   return `OAuth ${headerString}`;
 }
 
+async function postTweet(
+  text: string,
+  consumerKey: string,
+  consumerSecret: string,
+  accessToken: string,
+  accessTokenSecret: string
+): Promise<{ id: string } | null> {
+  const twitterUrl = 'https://api.x.com/2/tweets';
+  
+  const oauthHeader = await generateOAuthHeader(
+    'POST',
+    twitterUrl,
+    consumerKey,
+    consumerSecret,
+    accessToken,
+    accessTokenSecret
+  );
+
+  const response = await fetch(twitterUrl, {
+    method: 'POST',
+    headers: {
+      'Authorization': oauthHeader,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ text }),
+  });
+
+  const responseData = await response.json();
+
+  if (!response.ok) {
+    console.error('Twitter API error:', responseData);
+    throw new Error(`Twitter API error: ${JSON.stringify(responseData)}`);
+  }
+
+  return responseData.data;
+}
+
 Deno.serve(async (req) => {
   // Use restricted CORS for this authenticated write endpoint
   const corsHeaders = getRestrictedCorsHeaders(req);
@@ -89,83 +126,175 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Verify user authentication
-    const user = await verifyUserAuth(req);
-    if (!user) {
-      return new Response(
-        JSON.stringify({ error: 'Authentication required to post to Twitter' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    // Parse body first to check for auto mode
+    let body: Record<string, unknown> = {};
+    try {
+      body = await parseJsonBody(req) as Record<string, unknown>;
+    } catch {
+      // Empty body is okay for auto mode via cron
+    }
+
+    const isAutoMode = body.auto === true;
+    
+    // Dual authentication: HMAC for cron/automation, JWT for user-triggered calls
+    const isValidHmac = await verifyHmacSignature(req);
+    let authenticated = isValidHmac && isAutoMode;
+    let userId = 'cron-automation';
+    
+    if (!authenticated) {
+      // Fall back to JWT authentication for user-triggered calls
+      const user = await verifyUserAuth(req);
+      if (user) {
+        userId = user.userId;
+        const supabaseAuth = createClient(
+          Deno.env.get('SUPABASE_URL') ?? '',
+          Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+        );
+        
+        // Check if user has admin or editor role
+        const { data: isAdmin } = await supabaseAuth.rpc('has_role', {
+          _user_id: user.userId,
+          _role: 'admin'
+        });
+        const { data: isEditor } = await supabaseAuth.rpc('has_role', {
+          _user_id: user.userId,
+          _role: 'editor'
+        });
+        
+        authenticated = isAdmin || isEditor;
+        if (!authenticated) {
+          console.error('User lacks required role for post-to-twitter');
+          return unauthorizedResponse('Admin or editor role required');
+        }
+      }
     }
     
-    console.log(`User ${user.userId} requesting Twitter post`);
+    if (!authenticated) {
+      console.error('No valid authentication for post-to-twitter');
+      return unauthorizedResponse('Authentication required');
+    }
 
-    // Check if user has admin or editor role
-    const supabaseAuth = createClient(
+    console.log(`Post to Twitter requested by: ${userId}, auto mode: ${isAutoMode}`);
+
+    const TWITTER_CONSUMER_KEY = Deno.env.get('TWITTER_CONSUMER_KEY');
+    const TWITTER_CONSUMER_SECRET = Deno.env.get('TWITTER_CONSUMER_SECRET');
+    const TWITTER_ACCESS_TOKEN = Deno.env.get('TWITTER_ACCESS_TOKEN');
+    const TWITTER_ACCESS_TOKEN_SECRET = Deno.env.get('TWITTER_ACCESS_TOKEN_SECRET');
+
+    if (!TWITTER_CONSUMER_KEY || !TWITTER_CONSUMER_SECRET || !TWITTER_ACCESS_TOKEN || !TWITTER_ACCESS_TOKEN_SECRET) {
+      throw new Error('Twitter API configuration missing');
+    }
+
+    const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const { data: isAdmin } = await supabaseAuth.rpc('has_role', {
-      _user_id: user.userId,
-      _role: 'admin'
-    });
+    // AUTO MODE: Find and post top unposted articles
+    if (isAutoMode) {
+      const limit = typeof body.limit === 'number' ? body.limit : 3;
+      const minScore = typeof body.minScore === 'number' ? body.minScore : 75;
 
-    if (!isAdmin) {
-      const { data: isEditor } = await supabaseAuth.rpc('has_role', {
-        _user_id: user.userId,
-        _role: 'editor'
-      });
-      
-      if (!isEditor) {
-        console.warn(`User ${user.userId} attempted Twitter post without permission`);
-        return unauthorizedResponse('Admin or Editor role required to post to Twitter');
+      // Get top-scoring articles that haven't been posted to Twitter yet
+      const { data: articles, error: fetchError } = await supabase
+        .from('culture_articles')
+        .select(`
+          id,
+          title,
+          paraloop_headline,
+          paraloop_vibe,
+          article_url,
+          category,
+          relevance_score
+        `)
+        .gte('relevance_score', minScore)
+        .not('paraloop_headline', 'is', null)
+        .order('relevance_score', { ascending: false })
+        .order('created_at', { ascending: false })
+        .limit(limit * 2); // Fetch extra to filter out already posted
+
+      if (fetchError) {
+        throw new Error(`Failed to fetch articles: ${fetchError.message}`);
       }
-    }
 
-    console.log(`User ${user.userId} authorized for Twitter post (admin: ${isAdmin})`);
-
-    // Rate limiting: Check daily post count
-    const { data: todayPosts, error: countError } = await supabaseAuth
-      .from('social_posts')
-      .select('id', { count: 'exact', head: true })
-      .eq('platform', 'twitter')
-      .gte('posted_at', new Date(new Date().setHours(0, 0, 0, 0)).toISOString());
-
-    if (!countError && todayPosts !== null) {
-      const postCount = (todayPosts as unknown as { count: number }).count || 0;
-      if (postCount >= 20) {
-        console.warn(`User ${user.userId} hit daily Twitter posting limit`);
+      if (!articles || articles.length === 0) {
+        console.log('No high-scoring articles to post');
         return new Response(
-          JSON.stringify({ error: 'Daily Twitter posting limit reached (20 posts)' }),
-          { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          JSON.stringify({ success: true, posted: 0, message: 'No articles to post' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
-    }
 
-    // Check for rapid posting (more than 3 posts in last 5 minutes)
-    const { data: recentPosts } = await supabaseAuth
-      .from('social_posts')
-      .select('posted_at')
-      .eq('platform', 'twitter')
-      .gte('posted_at', new Date(Date.now() - 5 * 60 * 1000).toISOString())
-      .limit(3);
+      // Filter out already posted articles
+      const { data: postedArticles } = await supabase
+        .from('social_posts')
+        .select('curated_article_id')
+        .eq('platform', 'twitter')
+        .in('curated_article_id', articles.map(a => a.id));
 
-    if (recentPosts && recentPosts.length >= 3) {
-      console.warn(`⚠️ Rapid Twitter posting detected for user ${user.userId} - possible automation or compromise`);
-    }
+      const postedIds = new Set(postedArticles?.map(p => p.curated_article_id) || []);
+      const unpostedArticles = articles.filter(a => !postedIds.has(a.id)).slice(0, limit);
 
-    // Parse and validate input
-    let body: unknown;
-    try {
-      body = await parseJsonBody(req);
-    } catch (error) {
+      if (unpostedArticles.length === 0) {
+        console.log('All high-scoring articles already posted');
+        return new Response(
+          JSON.stringify({ success: true, posted: 0, message: 'All articles already posted' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      const results: { article_id: string; tweet_id: string; text: string }[] = [];
+
+      for (const article of unpostedArticles) {
+        try {
+          // Generate tweet text
+          const tweetText = `${article.paraloop_headline || article.title}\n\n${article.paraloop_vibe ? `✨ ${article.paraloop_vibe}` : ''}\n\n${article.article_url}\n\n#ParaloopCulture #${article.category?.replace('-', '') || 'Culture'}`;
+          const finalText = tweetText.length > 280 ? tweetText.substring(0, 277) + '...' : tweetText;
+
+          const tweetData = await postTweet(
+            finalText,
+            TWITTER_CONSUMER_KEY,
+            TWITTER_CONSUMER_SECRET,
+            TWITTER_ACCESS_TOKEN,
+            TWITTER_ACCESS_TOKEN_SECRET
+          );
+
+          if (tweetData?.id) {
+            // Log the post
+            await supabase
+              .from('social_posts')
+              .insert({
+                curated_article_id: article.id,
+                platform: 'twitter',
+                caption: finalText,
+                external_id: tweetData.id,
+                posted: true,
+                posted_at: new Date().toISOString(),
+              });
+
+            results.push({
+              article_id: article.id,
+              tweet_id: tweetData.id,
+              text: finalText
+            });
+
+            console.log(`Auto-posted article ${article.id} to Twitter: ${tweetData.id}`);
+          }
+
+          // Small delay between posts to avoid rate limits
+          await new Promise(resolve => setTimeout(resolve, 2000));
+        } catch (postError) {
+          console.error(`Failed to post article ${article.id}:`, postError);
+        }
+      }
+
       return new Response(
-        JSON.stringify({ error: error instanceof Error ? error.message : 'Invalid request body' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ success: true, posted: results.length, tweets: results }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
-    
+
+    // MANUAL MODE: Post specific article
     const validation = postToTwitterSchema.safeParse(body);
     if (!validation.success) {
       return new Response(
@@ -176,20 +305,17 @@ Deno.serve(async (req) => {
     
     const { article_id, custom_text } = validation.data;
 
-    const TWITTER_CONSUMER_KEY = Deno.env.get('TWITTER_CONSUMER_KEY');
-    const TWITTER_CONSUMER_SECRET = Deno.env.get('TWITTER_CONSUMER_SECRET');
-    const TWITTER_ACCESS_TOKEN = Deno.env.get('TWITTER_ACCESS_TOKEN');
-    const TWITTER_ACCESS_TOKEN_SECRET = Deno.env.get('TWITTER_ACCESS_TOKEN_SECRET');
+    // Rate limiting for manual posts
+    const { data: recentPosts } = await supabase
+      .from('social_posts')
+      .select('posted_at')
+      .eq('platform', 'twitter')
+      .gte('posted_at', new Date(Date.now() - 5 * 60 * 1000).toISOString())
+      .limit(3);
 
-    if (!TWITTER_CONSUMER_KEY) throw new Error('Twitter API configuration missing');
-    if (!TWITTER_CONSUMER_SECRET) throw new Error('Twitter API configuration missing');
-    if (!TWITTER_ACCESS_TOKEN) throw new Error('Twitter API configuration missing');
-    if (!TWITTER_ACCESS_TOKEN_SECRET) throw new Error('Twitter API configuration missing');
-
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    );
+    if (recentPosts && recentPosts.length >= 3) {
+      console.warn(`⚠️ Rapid Twitter posting detected for user ${userId}`);
+    }
 
     // Get the article
     const { data: article, error: articleError } = await supabase
@@ -206,38 +332,15 @@ Deno.serve(async (req) => {
     const tweetText = custom_text || 
       `${article.paraloop_headline || article.title}\n\n${article.paraloop_vibe ? `✨ ${article.paraloop_vibe}` : ''}\n\n${article.article_url}\n\n#ParaloopCulture #${article.category?.replace('-', '') || 'Culture'}`;
 
-    // Truncate to 280 chars if needed
-    const finalText = tweetText.length > 280 
-      ? tweetText.substring(0, 277) + '...' 
-      : tweetText;
+    const finalText = tweetText.length > 280 ? tweetText.substring(0, 277) + '...' : tweetText;
 
-    // Post to Twitter using API v2
-    const twitterUrl = 'https://api.x.com/2/tweets';
-    
-    const oauthHeader = await generateOAuthHeader(
-      'POST',
-      twitterUrl,
+    const tweetData = await postTweet(
+      finalText,
       TWITTER_CONSUMER_KEY,
       TWITTER_CONSUMER_SECRET,
       TWITTER_ACCESS_TOKEN,
       TWITTER_ACCESS_TOKEN_SECRET
     );
-
-    const response = await fetch(twitterUrl, {
-      method: 'POST',
-      headers: {
-        'Authorization': oauthHeader,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ text: finalText }),
-    });
-
-    const responseData = await response.json();
-
-    if (!response.ok) {
-      console.error('Twitter API error:', responseData);
-      throw new Error(`Twitter API error: ${JSON.stringify(responseData)}`);
-    }
 
     // Log the post to social_posts table
     await supabase
@@ -246,17 +349,17 @@ Deno.serve(async (req) => {
         curated_article_id: article_id,
         platform: 'twitter',
         caption: finalText,
-        external_id: responseData.data?.id,
+        external_id: tweetData?.id,
         posted: true,
         posted_at: new Date().toISOString(),
       });
 
-    console.log(`User ${user.userId} successfully posted to Twitter:`, responseData.data?.id);
+    console.log(`User ${userId} successfully posted to Twitter:`, tweetData?.id);
 
     return new Response(
       JSON.stringify({ 
         success: true, 
-        tweet_id: responseData.data?.id,
+        tweet_id: tweetData?.id,
         text: finalText 
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
