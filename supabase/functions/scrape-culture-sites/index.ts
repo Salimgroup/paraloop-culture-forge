@@ -1,5 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { corsHeaders, verifyHmacSignature, verifyUserAuth, unauthorizedResponse } from "../_shared/auth.ts";
+import { corsHeaders, verifyServiceRoleKey, verifyUserAuth, unauthorizedResponse } from "../_shared/auth.ts";
 
 // Culture sites to scrape
 const CULTURE_SITES = [
@@ -80,9 +80,9 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Dual authentication: HMAC for cron/automation, JWT for user-triggered calls
-    const isValidHmac = await verifyHmacSignature(req);
-    let authenticated = isValidHmac;
+    // Dual authentication: service role key for cron/automation, JWT for user-triggered calls
+    const isServiceRole = verifyServiceRoleKey(req);
+    let authenticated = isServiceRole;
     
     if (!authenticated) {
       // Fall back to JWT authentication for user-triggered calls

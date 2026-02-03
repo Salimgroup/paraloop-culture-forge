@@ -7,6 +7,27 @@ export const corsHeaders = {
 };
 
 /**
+ * Verify service role key for cron/automation calls
+ * Accepts bearer token matching SUPABASE_SERVICE_ROLE_KEY
+ */
+export function verifyServiceRoleKey(req: Request): boolean {
+  const authHeader = req.headers.get('Authorization');
+  if (!authHeader?.startsWith('Bearer ')) {
+    return false;
+  }
+  
+  const token = authHeader.replace('Bearer ', '');
+  const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+  
+  if (!serviceRoleKey) {
+    console.error('SUPABASE_SERVICE_ROLE_KEY not configured');
+    return false;
+  }
+  
+  return token === serviceRoleKey;
+}
+
+/**
  * Verify HMAC signature for server-to-server calls (cron jobs, internal automation)
  * Uses SUPABASE_SERVICE_ROLE_KEY as the shared secret
  */
