@@ -1,5 +1,5 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { verifyUserAuth, verifyServiceRoleKey, unauthorizedResponse, badRequestResponse } from "../_shared/auth.ts";
+import { verifyUserAuth, verifyServiceRoleKey, verifyHmacSignature, unauthorizedResponse, badRequestResponse } from "../_shared/auth.ts";
 import { getRestrictedCorsHeaders } from "../_shared/cors.ts";
 import { postToTwitterSchema, parseJsonBody } from "../_shared/validation.ts";
 
@@ -136,9 +136,10 @@ Deno.serve(async (req) => {
 
     const isAutoMode = body.auto === true;
     
-    // Dual authentication: service role key for cron/automation, JWT for user-triggered calls
+    // Triple authentication: service role key, HMAC signature, or JWT
     const isServiceRole = verifyServiceRoleKey(req);
-    let authenticated = isServiceRole && isAutoMode;
+    const isHmacValid = await verifyHmacSignature(req);
+    let authenticated = (isServiceRole || isHmacValid) && isAutoMode;
     let userId = 'cron-automation';
     
     if (!authenticated) {
