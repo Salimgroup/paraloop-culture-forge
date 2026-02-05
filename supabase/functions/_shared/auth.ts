@@ -28,6 +28,27 @@ export function verifyServiceRoleKey(req: Request): boolean {
 }
 
 /**
+ * Verify CRON_SECRET header for external automation (cron-job.org, n8n, Make, etc.)
+ * Simple shared secret check - easier than HMAC for external tools
+ */
+export function verifyCronSecret(req: Request): boolean {
+  const cronSecret = req.headers.get('x-cron-secret');
+  const expectedSecret = Deno.env.get('CRON_SECRET');
+  
+  if (!expectedSecret) {
+    console.error('CRON_SECRET not configured');
+    return false;
+  }
+  
+  if (!cronSecret) {
+    console.error('Missing x-cron-secret header');
+    return false;
+  }
+  
+  return cronSecret === expectedSecret;
+}
+
+/**
  * Verify HMAC signature for server-to-server calls (cron jobs, internal automation)
  * Uses SUPABASE_SERVICE_ROLE_KEY as the shared secret
  */
