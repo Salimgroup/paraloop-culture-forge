@@ -1,5 +1,5 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { corsHeaders, verifyServiceRoleKey, verifyUserAuth, unauthorizedResponse } from "../_shared/auth.ts";
+import { corsHeaders, verifyServiceRoleKey, verifyUserAuth, verifyHmacSignature, unauthorizedResponse } from "../_shared/auth.ts";
 
 const PARALOOP_SYSTEM_PROMPT = `You are Paraloop's culture analyst - a warm, insightful voice celebrating hip-hop, streetwear, and urban culture.
 
@@ -25,9 +25,10 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Dual authentication: service role key for cron/automation, JWT for user-triggered calls
+    // Triple authentication: service role key, HMAC signature, or JWT
     const isServiceRole = verifyServiceRoleKey(req);
-    let authenticated = isServiceRole;
+    const isHmacValid = await verifyHmacSignature(req);
+    let authenticated = isServiceRole || isHmacValid;
     
     if (!authenticated) {
       // Fall back to JWT authentication for user-triggered calls
