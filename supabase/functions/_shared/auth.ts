@@ -57,6 +57,7 @@ export async function verifyHmacSignature(req: Request): Promise<boolean> {
   const timestamp = req.headers.get('x-hmac-timestamp');
   
   if (!signature || !timestamp) {
+    console.log('HMAC: Missing signature or timestamp headers');
     return false;
   }
   
@@ -75,8 +76,11 @@ export async function verifyHmacSignature(req: Request): Promise<boolean> {
   }
   
   // Create HMAC signature from timestamp + method + path
+  // Edge functions receive the full path including /functions/v1/
   const url = new URL(req.url);
+  console.log('HMAC debug - URL:', req.url, 'pathname:', url.pathname);
   const message = `${timestamp}:${req.method}:${url.pathname}`;
+  console.log('HMAC debug - message:', message);
   
   const encoder = new TextEncoder();
   const keyData = encoder.encode(secret);
