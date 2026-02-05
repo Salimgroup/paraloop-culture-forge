@@ -35,6 +35,9 @@ export function verifyCronSecret(req: Request): boolean {
   const cronSecret = req.headers.get('x-cron-secret');
   const expectedSecret = Deno.env.get('CRON_SECRET');
   
+  console.log('CRON debug - received header:', cronSecret ? `"${cronSecret}" (len: ${cronSecret.length})` : 'null');
+  console.log('CRON debug - expected secret:', expectedSecret ? `"${expectedSecret.substring(0, 5)}..." (len: ${expectedSecret.length})` : 'null');
+  
   if (!expectedSecret) {
     console.error('CRON_SECRET not configured');
     return false;
@@ -45,7 +48,9 @@ export function verifyCronSecret(req: Request): boolean {
     return false;
   }
   
-  return cronSecret === expectedSecret;
+  const match = cronSecret.trim() === expectedSecret.trim();
+  console.log('CRON debug - match:', match);
+  return match;
 }
 
 /**
