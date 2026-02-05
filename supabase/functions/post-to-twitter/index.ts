@@ -1,4 +1,4 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "npm:@supabase/supabase-js@2";
 import { verifyUserAuth, verifyServiceRoleKey, unauthorizedResponse, badRequestResponse } from "../_shared/auth.ts";
 import { getRestrictedCorsHeaders } from "../_shared/cors.ts";
 import { postToTwitterSchema, parseJsonBody } from "../_shared/validation.ts";

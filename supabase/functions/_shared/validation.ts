@@ -1,5 +1,5 @@
 // Shared validation utilities using Zod
-import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
+import { z } from "npm:zod@3.22.4";
 
 // UUID validation schema
 export const uuidSchema = z.string().uuid('Invalid UUID format');
