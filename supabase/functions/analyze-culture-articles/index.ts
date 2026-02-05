@@ -1,4 +1,4 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "npm:@supabase/supabase-js@2";
 import { corsHeaders, verifyServiceRoleKey, verifyUserAuth, unauthorizedResponse } from "../_shared/auth.ts";
 
 const PARALOOP_SYSTEM_PROMPT = `You are Paraloop's culture analyst - a warm, insightful voice celebrating hip-hop, streetwear, and urban culture.
