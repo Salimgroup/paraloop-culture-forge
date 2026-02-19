@@ -41,10 +41,8 @@ Deno.serve(async (req) => {
     const { category, limit } = queryValidation.data;
 
     let query = supabase
-      .from('culture_articles')
+      .from('culture_articles_public')
       .select('*')
-      .not('paraloop_analysis', 'is', null)
-      .order('relevance_score', { ascending: false })
       .order('created_at', { ascending: false })
       .limit(limit);
 
