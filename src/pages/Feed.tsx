@@ -20,10 +20,46 @@ export default function Feed() {
   async function loadFeed() {
     setLoading(true);
     try {
-      const { data } = await supabase.functions.invoke('get-feed', {
-        body: { tag: currentTag || undefined }
-      });
-      setArticles(data?.items || []);
+      // Try edge function first
+      try {
+        const { data } = await supabase.functions.invoke('get-feed', {
+          body: { tag: currentTag || undefined }
+        });
+        if (data?.items?.length > 0) {
+          setArticles(data.items);
+          return;
+        }
+      } catch (e) {
+        console.warn('Edge function failed, trying direct query:', e);
+      }
+
+      // Fallback: query culture_articles directly
+      let query = supabase
+        .from('culture_articles')
+        .select('id, title, paraloop_headline, article_url, category, relevance_score, source_name, image_url, created_at, summary_paraloop, seo_slug')
+        .order('relevance_score', { ascending: false });
+
+      if (currentTag) {
+        query = query.eq('category', currentTag);
+      }
+
+      const { data: articles } = await query.limit(24);
+
+      setArticles((articles || []).map((a: any) => ({
+        id: a.id,
+        title: a.paraloop_headline || a.title,
+        headline_paraloop: a.paraloop_headline || a.title,
+        article_url: a.article_url,
+        canonical_url: a.article_url,
+        category: a.category,
+        outlet: a.source_name,
+        image_url: a.image_url,
+        relevance_score: a.relevance_score,
+        source_published_at: a.created_at,
+        published_at: a.created_at,
+        summary_paraloop: a.summary_paraloop || '',
+        seo_slug: a.seo_slug || a.id
+      })));
     } finally {
       setLoading(false);
     }

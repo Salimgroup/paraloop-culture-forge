@@ -17,10 +17,36 @@ export default function Article() {
   async function loadArticle() {
     setLoading(true);
     try {
-      const { data } = await supabase.functions.invoke('get-feed', {
-        body: { slug }
-      });
-      setArticle(data);
+      // Try edge function first
+      try {
+        const { data } = await supabase.functions.invoke('get-feed', {
+          body: { slug }
+        });
+        if (data) {
+          setArticle(data);
+          return;
+        }
+      } catch (e) {
+        console.warn('Edge function failed, trying direct query:', e);
+      }
+
+      // Fallback: query culture_articles directly
+      const { data: articles } = await supabase
+        .from('culture_articles')
+        .select('*')
+        .eq('seo_slug', slug)
+        .single();
+
+      if (articles) {
+        setArticle({
+          headline_paraloop: articles.paraloop_headline || articles.title,
+          summary_paraloop: articles.summary_paraloop || articles.description || '',
+          source_published_at: articles.created_at,
+          canonical_url: articles.article_url,
+          outlet: articles.source_name,
+          image_url: articles.image_url
+        });
+      }
     } finally {
       setLoading(false);
     }
