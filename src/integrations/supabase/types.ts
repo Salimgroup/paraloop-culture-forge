@@ -362,6 +362,45 @@ export type Database = {
       }
     }
     Views: {
+      culture_articles_public: {
+        Row: {
+          article_url: string | null
+          category: string | null
+          created_at: string | null
+          excerpt: string | null
+          id: string | null
+          image_url: string | null
+          published_at: string | null
+          source_name: string | null
+          tags: string[] | null
+          title: string | null
+        }
+        Insert: {
+          article_url?: string | null
+          category?: string | null
+          created_at?: string | null
+          excerpt?: string | null
+          id?: string | null
+          image_url?: string | null
+          published_at?: string | null
+          source_name?: string | null
+          tags?: string[] | null
+          title?: string | null
+        }
+        Update: {
+          article_url?: string | null
+          category?: string | null
+          created_at?: string | null
+          excerpt?: string | null
+          id?: string | null
+          image_url?: string | null
+          published_at?: string | null
+          source_name?: string | null
+          tags?: string[] | null
+          title?: string | null
+        }
+        Relationships: []
+      }
       curated_articles_public: {
         Row: {
           author: string | null
