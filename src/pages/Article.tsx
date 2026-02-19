@@ -34,13 +34,13 @@ export default function Article() {
       const { data: articles } = await supabase
         .from('culture_articles')
         .select('*')
-        .eq('seo_slug', slug)
+        .eq('title', slug)
         .single();
 
       if (articles) {
         setArticle({
           headline_paraloop: articles.paraloop_headline || articles.title,
-          summary_paraloop: articles.summary_paraloop || articles.description || '',
+          summary_paraloop: articles.paraloop_analysis || articles.excerpt || '',
           source_published_at: articles.created_at,
           canonical_url: articles.article_url,
           outlet: articles.source_name,
