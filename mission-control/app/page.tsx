@@ -1,316 +1,216 @@
-import { CheckSquare, Zap, Calendar, Brain, Users, Trophy, Zap as Lightning, Star } from 'lucide-react'
+'use client'
+
+import { useEffect, useState } from 'react'
 
 export default function Dashboard() {
-  const agents = [
-    { name: 'Scraper Alpha', icon: '🟡', level: 12, xp: 8500, status: 'active', task: 'Fetching TechCrunch articles...', progress: 65 },
-    { name: 'Writer Prime', icon: '🔵', level: 11, xp: 7200, status: 'active', task: 'Writing summaries...', progress: 42 },
-    { name: 'Judge Relevance', icon: '🟣', level: 13, xp: 9100, status: 'active', task: 'Rating content...', progress: 88 },
-  ]
+  const [mounted, setMounted] = useState(false)
 
-  const workItems = [
-    { id: 1, title: 'Article: AI Revolution', status: 'reviewing', agent: 'Scraper Alpha', nextReview: 'Judge Relevance', quality: 95 },
-    { id: 2, title: 'Summary: Tech Trends', status: 'reviewing', agent: 'Writer Prime', nextReview: 'Judge Relevance', quality: 92 },
-    { id: 3, title: 'Rating: Culture Impact', status: 'approved', agent: 'Judge Relevance', nextReview: 'Social Agent', quality: 88 },
-    { id: 4, title: 'Post: Social Media', status: 'processing', agent: 'Social Agent', nextReview: 'Analyzer Pro', quality: 0 },
-  ]
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-yellow-900 via-purple-900 to-pink-900 p-8 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-[#0a0f2c] via-[#0d1b3d] to-[#050a1f] overflow-hidden relative">
       {/* Animated background elements */}
-      <div className="absolute inset-0 opacity-30">
-        <div className="absolute top-10 left-10 w-32 h-32 bg-yellow-400 rounded-full animate-pulse blur-3xl"></div>
-        <div className="absolute bottom-20 right-20 w-40 h-40 bg-cyan-400 rounded-full animate-bounce blur-3xl"></div>
-        <div className="absolute top-1/2 left-1/3 w-24 h-24 bg-pink-400 rounded-full animate-pulse blur-2xl" style={{animationDelay: '1s'}}></div>
+      <div className="absolute inset-0">
+        <div className="absolute top-20 left-20 w-96 h-96 bg-cyan-500 opacity-5 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-40 right-40 w-96 h-96 bg-amber-500 opacity-5 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s'}}></div>
+        <div className="absolute top-1/2 left-1/3 w-80 h-80 bg-cyan-400 opacity-3 rounded-full blur-3xl"></div>
       </div>
 
-      {/* Animated particles showing data flow */}
-      <div className="absolute inset-0 pointer-events-none">
-        {[...Array(8)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-2 h-2 bg-yellow-300 rounded-full animate-pulse"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animation: `float ${3 + i}s ease-in-out infinite`,
-              animationDelay: `${i * 0.3}s`,
-            }}
-          />
-        ))}
+      {/* Grid pattern overlay */}
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute inset-0 bg-repeat" style={{
+          backgroundImage: 'linear-gradient(0deg, rgba(34,211,238,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(34,211,238,0.1) 1px, transparent 1px)',
+          backgroundSize: '50px 50px'
+        }}></div>
       </div>
 
-      <div className="relative z-10">
-        {/* Header */}
-        <div className="mb-12">
-          <h1 className="text-7xl font-black mb-2 text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-pink-300 to-cyan-300 animate-pulse">
-            🕹️ MISSION CONTROL
-          </h1>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
-            <p className="text-xl text-yellow-200 font-bold uppercase tracking-widest">
-              ► All Systems Active • 10 Agents Working
+      <div className="relative z-10 p-8">
+        <div className="max-w-8xl mx-auto">
+          {/* Header */}
+          <div className="mb-12">
+            <h1 className="text-6xl font-black mb-2 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-cyan-300 to-amber-400"
+              style={{textShadow: '0 0 30px rgba(34,211,238,0.6), 0 0 60px rgba(34,211,238,0.3)'}}>
+              ▲ PARALOOP COMMAND
+            </h1>
+            <p className="text-cyan-400 font-mono text-lg" style={{textShadow: '0 0 15px rgba(34,211,238,0.5)'}}>
+              &gt; Neural Command Center // System Online
             </p>
           </div>
-        </div>
 
-        {/* Real-time Activity Feed */}
-        <div className="mb-8 bg-black border-4 border-cyan-400 p-6 rounded-lg shadow-2xl overflow-hidden">
-          <h3 className="text-2xl font-black text-cyan-300 mb-4 flex items-center gap-2">
-            ⚡ LIVE ACTIVITY STREAM
-          </h3>
-          <div className="space-y-2 h-24 overflow-hidden relative">
-            {/* Scrolling activity text */}
-            <style>{`
-              @keyframes scrollUp {
-                0% { transform: translateY(100%); opacity: 1; }
-                100% { transform: translateY(-100%); opacity: 0; }
-              }
-              .activity-line {
-                animation: scrollUp 4s linear infinite;
-                position: absolute;
-                width: 100%;
-              }
-            `}</style>
-            
-            {[...Array(6)].map((_, i) => (
-              <div
-                key={i}
-                className="activity-line text-sm font-mono text-green-400"
-                style={{animationDelay: `${i * 0.8}s`}}
-              >
-                <span className="text-cyan-400">▶</span> {['Fetching article from TechCrunch', 'Parsing content structure', 'Generating summary', 'Analyzing sentiment', 'Rating relevance score', 'Publishing to timeline'][i % 6]} <span className="text-yellow-400 animate-pulse">...</span>
-              </div>
-            ))}
-          </div>
-        </div>
+          {/* Main Grid */}
+          <div className="grid grid-cols-3 gap-6 mb-8">
+            {/* Large Circular Stat - Top Left */}
+            <div className="col-span-1 relative group">
+              <div className="absolute inset-0 bg-gradient-to-br from-cyan-500 to-amber-500 rounded-2xl opacity-20 blur-xl group-hover:opacity-40 transition"></div>
+              <div className="relative bg-gradient-to-br from-[#1a2f4a] to-[#0f1f35] p-8 rounded-2xl border border-cyan-500 border-opacity-30 backdrop-blur-sm overflow-hidden"
+                style={{boxShadow: '0 0 30px rgba(34,211,238,0.3), inset 0 0 30px rgba(34,211,238,0.1)'}}>
+                
+                <div className="absolute inset-0 opacity-30">
+                  <svg className="w-full h-full" viewBox="0 0 200 200">
+                    <defs>
+                      <radialGradient id="grad1" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" style={{stopColor: 'rgba(34,211,238,0.1)', stopOpacity: 1}} />
+                        <stop offset="100%" style={{stopColor: 'rgba(34,211,238,0.01)', stopOpacity: 1}} />
+                      </radialGradient>
+                    </defs>
+                    <circle cx="100" cy="100" r="80" fill="url(#grad1)" />
+                    <circle cx="100" cy="100" r="90" fill="none" stroke="rgba(34,211,238,0.1)" strokeWidth="0.5" />
+                  </svg>
+                </div>
 
-        {/* Player Stats with animated borders */}
-        <div className="grid grid-cols-4 gap-4 mb-12">
-          {[
-            { label: 'LEVEL', value: '42', color: 'from-yellow-400 to-orange-500', border: 'border-yellow-200' },
-            { label: 'XP', value: '45.2K', color: 'from-cyan-400 to-blue-500', border: 'border-cyan-200' },
-            { label: 'ACHIEVEMENTS', value: '28', color: 'from-pink-400 to-red-500', border: 'border-pink-200' },
-            { label: 'STREAK', value: '13🔥', color: 'from-purple-400 to-indigo-500', border: 'border-purple-200' },
-          ].map((stat, idx) => (
-            <div
-              key={idx}
-              className={`bg-gradient-to-br ${stat.color} p-6 rounded-lg shadow-lg transform hover:scale-105 transition border-4 ${stat.border} animate-bounce`}
-              style={{ animationDelay: `${idx * 0.1}s` }}
-            >
-              <div className="text-sm text-gray-900 font-bold uppercase">{stat.label}</div>
-              <div className="text-5xl font-black text-gray-900">{stat.value}</div>
-            </div>
-          ))}
-        </div>
-
-        {/* Active Work Queue - Showing Agent Communication & Quality Reviews */}
-        <div className="bg-black border-4 border-yellow-400 p-8 rounded-lg mb-12 shadow-2xl overflow-hidden">
-          <h2 className="text-4xl font-black text-yellow-300 mb-6 flex items-center gap-3">
-            👾 COLLABORATIVE WORK FLOW
-          </h2>
-          <div className="space-y-4">
-            {workItems.map((item: any, idx) => (
-              <div
-                key={item.id}
-                className="bg-gradient-to-r from-purple-600 to-blue-600 p-4 rounded border-3 border-cyan-300 relative overflow-hidden"
-                style={{
-                  animation: `slideIn 0.5s ease-out ${idx * 0.1}s both`,
-                }}
-              >
-                <style>{`
-                  @keyframes slideIn {
-                    from { transform: translateX(-100%); opacity: 0; }
-                    to { transform: translateX(0); opacity: 1; }
-                  }
-                  @keyframes workProgress {
-                    0% { width: 0%; }
-                    100% { width: 100%; }
-                  }
-                `}</style>
-
-                <div className="flex items-start justify-between mb-3">
-                  <div>
-                    <div className="font-black text-white text-lg">{item.title}</div>
-                    <div className="text-cyan-200 text-sm font-bold">
-                      {item.agent} {item.status === 'reviewing' ? '→' : '✓'} {item.nextReview || 'Done'}
+                <div className="relative z-10 flex flex-col items-center justify-center h-64">
+                  <div className="relative w-48 h-48 flex items-center justify-center">
+                    {/* Circular Progress */}
+                    <svg className="absolute w-full h-full -rotate-90" style={{filter: 'drop-shadow(0 0 10px rgba(34,211,238,0.6))'}}>
+                      <circle cx="96" cy="96" r="80" fill="none" stroke="rgba(34,211,238,0.2)" strokeWidth="8" />
+                      <circle cx="96" cy="96" r="80" fill="none" stroke="url(#grad1)" strokeWidth="8" 
+                        strokeDasharray="502.4" strokeDashoffset="125.6"
+                        style={{transition: 'stroke-dashoffset 0.5s ease'}} />
+                    </svg>
+                    
+                    <div className="text-center">
+                      <div className="text-5xl font-black text-amber-400" style={{textShadow: '0 0 20px rgba(251,146,60,0.8)'}}>75%</div>
+                      <div className="text-cyan-400 font-mono text-xs mt-2" style={{textShadow: '0 0 10px rgba(34,211,238,0.6)'}}>ACTIVE</div>
                     </div>
-                  </div>
-                  <div className={`px-3 py-1 rounded-full text-xs font-black uppercase ${
-                    item.status === 'approved'
-                      ? 'bg-green-500 text-black'
-                      : item.status === 'reviewing'
-                        ? 'bg-blue-500 text-white animate-pulse'
-                        : 'bg-yellow-500 text-black animate-pulse'
-                  }`}>
-                    {item.status === 'approved' ? '✅ APPROVED' : item.status === 'reviewing' ? '👀 REVIEWING' : '🔄 WORKING'}
                   </div>
                 </div>
 
-                {/* Quality Score */}
-                {item.quality > 0 && (
-                  <div className="mb-2 flex items-center gap-2">
-                    <span className="text-xs font-bold text-yellow-300">Quality:</span>
-                    <div className="flex-1 bg-black rounded-full h-2 border border-yellow-400 overflow-hidden max-w-xs">
-                      <div
-                        className="bg-gradient-to-r from-yellow-400 to-green-400 h-full"
-                        style={{width: `${item.quality}%`}}
-                      />
-                    </div>
-                    <span className="text-xs font-black text-yellow-300">{item.quality}%</span>
-                  </div>
-                )}
-
-                {/* Animated progress bar */}
-                {(item.status === 'processing' || item.status === 'reviewing') && (
-                  <div className="bg-black rounded h-3 border-2 border-cyan-400 overflow-hidden">
-                    <div
-                      className="bg-gradient-to-r from-cyan-400 via-pink-400 to-yellow-400 h-full rounded animate-pulse"
-                      style={{
-                        width: `${30 + (idx * 20)}%`,
-                        animation: `workProgress ${2 + idx}s ease-in-out infinite`,
-                      }}
-                    />
-                  </div>
-                )}
-
-                {/* Communication indicator */}
-                {item.status === 'reviewing' && (
-                  <div className="text-xs text-cyan-300 mt-2 animate-pulse">
-                    💬 Agent communication in progress...
-                  </div>
-                )}
+                <div className="text-center text-cyan-300 font-mono text-xs mt-4" style={{textShadow: '0 0 8px rgba(34,211,238,0.4)'}}>
+                  NEURAL SYNC STATUS
+                </div>
               </div>
-            ))}
-          </div>
-        </div>
+            </div>
 
-        {/* Active Agents Arcade with movement */}
-        <div className="bg-black border-4 border-yellow-400 p-8 rounded-lg mb-12 shadow-2xl">
-          <h2 className="text-4xl font-black text-yellow-300 mb-6 flex items-center gap-3">
-            👾 ACTIVE AGENTS ARCADE
-          </h2>
-          <div className="grid grid-cols-3 gap-6">
-            {agents.map((agent, i) => (
-              <div
-                key={i}
-                className="bg-gradient-to-b from-purple-600 to-blue-600 p-6 rounded border-4 border-cyan-300 transform hover:scale-110 hover:rotate-2 transition duration-300 animate-bounce relative overflow-hidden"
-                style={{ animationDelay: `${i * 0.2}s` }}
-              >
-                {/* Working indicator particles */}
-                <div className="absolute inset-0 opacity-20">
-                  {[...Array(3)].map((_, p) => (
-                    <div
-                      key={p}
-                      className="absolute w-1 h-1 bg-cyan-400 rounded-full animate-pulse"
-                      style={{
-                        left: `${Math.random() * 100}%`,
-                        top: `${Math.random() * 100}%`,
-                        animation: `pulse ${1 + p}s ease-in-out infinite`,
-                      }}
-                    />
+            {/* Stats Grid - Top Right */}
+            <div className="col-span-2 grid grid-cols-2 gap-4">
+              {[
+                { label: 'AGENTS', value: '10', color: 'from-cyan-500 to-blue-500' },
+                { label: 'XP EARNED', value: '45.2K', color: 'from-amber-500 to-orange-500' },
+                { label: 'TASKS', value: '156', color: 'from-cyan-400 to-cyan-500' },
+                { label: 'QUALITY', value: '96%', color: 'from-green-500 to-emerald-500' },
+              ].map((stat, i) => (
+                <div key={i} className="group relative">
+                  <div className="absolute inset-0 bg-gradient-to-br from-cyan-500 to-amber-500 rounded-xl opacity-10 blur-lg group-hover:opacity-20 transition"></div>
+                  <div className="relative bg-gradient-to-br from-[#1a2f4a] to-[#0f1f35] p-6 rounded-xl border border-cyan-500 border-opacity-20 backdrop-blur-sm"
+                    style={{boxShadow: '0 0 20px rgba(34,211,238,0.2), inset 0 0 20px rgba(34,211,238,0.05)'}}>
+                    
+                    <div className="text-cyan-400 font-mono text-xs mb-2" style={{textShadow: '0 0 8px rgba(34,211,238,0.4)'}}>
+                      {stat.label}
+                    </div>
+                    <div className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-amber-400"
+                      style={{textShadow: '0 0 15px rgba(251,146,60,0.5)'}}>
+                      {stat.value}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Agent Metrics */}
+          <div className="grid grid-cols-2 gap-6 mb-8">
+            {/* Agents Panel */}
+            <div className="group relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-cyan-500 to-amber-500 rounded-2xl opacity-10 blur-xl group-hover:opacity-20 transition"></div>
+              <div className="relative bg-gradient-to-br from-[#1a2f4a] to-[#0f1f35] p-8 rounded-2xl border border-cyan-500 border-opacity-20 backdrop-blur-sm"
+                style={{boxShadow: '0 0 25px rgba(34,211,238,0.2)'}}>
+                
+                <h2 className="text-cyan-400 font-mono text-sm mb-6" style={{textShadow: '0 0 10px rgba(34,211,238,0.5)'}}>
+                  ▶ ACTIVE AGENTS
+                </h2>
+
+                <div className="space-y-4">
+                  {[
+                    { name: '🟡 Scraper Alpha', progress: 75 },
+                    { name: '🔵 Writer Prime', progress: 42 },
+                    { name: '🟣 Judge Relevance', progress: 88 },
+                  ].map((agent, i) => (
+                    <div key={i}>
+                      <div className="flex justify-between mb-2">
+                        <span className="text-cyan-300 font-mono text-sm">{agent.name}</span>
+                        <span className="text-amber-400 font-mono text-sm" style={{textShadow: '0 0 8px rgba(251,146,60,0.6)'}}>{agent.progress}%</span>
+                      </div>
+                      <div className="h-3 bg-[#0a0f2c] rounded-full border border-cyan-500 border-opacity-30 overflow-hidden"
+                        style={{boxShadow: 'inset 0 0 10px rgba(34,211,238,0.1)'}}>
+                        <div 
+                          className="h-full bg-gradient-to-r from-cyan-500 to-amber-400"
+                          style={{
+                            width: `${agent.progress}%`,
+                            boxShadow: '0 0 15px rgba(34,211,238,0.8), inset 0 0 10px rgba(255,255,255,0.1)',
+                            transition: 'width 0.5s ease'
+                          }}
+                        />
+                      </div>
+                    </div>
                   ))}
                 </div>
+              </div>
+            </div>
 
-                <div className="text-5xl mb-2 animate-pulse">{agent.icon}</div>
-                <div className="font-black text-white text-lg">{agent.name}</div>
-                <div className="text-cyan-200 text-xs font-bold mt-1">TASK: {agent.task}</div>
-                <div className="text-cyan-200 text-sm font-bold mt-2">LEVEL {agent.level}</div>
+            {/* Live Activity */}
+            <div className="group relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-cyan-500 to-amber-500 rounded-2xl opacity-10 blur-xl group-hover:opacity-20 transition"></div>
+              <div className="relative bg-gradient-to-br from-[#1a2f4a] to-[#0f1f35] p-8 rounded-2xl border border-cyan-500 border-opacity-20 backdrop-blur-sm"
+                style={{boxShadow: '0 0 25px rgba(34,211,238,0.2)'}}>
+                
+                <h2 className="text-cyan-400 font-mono text-sm mb-6" style={{textShadow: '0 0 10px rgba(34,211,238,0.5)'}}>
+                  ▶ LIVE ACTIVITY STREAM
+                </h2>
 
-                {/* Animated task progress bar */}
-                <div className="bg-black rounded mt-3 h-4 border-2 border-cyan-400 overflow-hidden">
-                  <div
-                    className="bg-gradient-to-r from-cyan-400 to-pink-400 h-full animate-pulse"
-                    style={{
-                      width: `${agent.progress}%`,
-                      animation: `workProgress ${1.5 + i}s ease-in-out infinite`,
-                    }}
-                  />
+                <div className="space-y-3 text-sm">
+                  <div className="text-cyan-300 font-mono">[11:44:20] ✓ Articles fetched from TechCrunch</div>
+                  <div className="text-cyan-300 font-mono">[11:44:15] ⚡ Generating summaries...</div>
+                  <div className="text-cyan-300 font-mono">[11:44:10] 👀 Rating content quality...</div>
+                  <div className="text-cyan-300 font-mono opacity-60">[11:44:05] 📱 Scheduled for social posting</div>
                 </div>
-                <div className="text-yellow-300 text-xs font-bold mt-2">{agent.progress}% Complete</div>
 
-                {/* XP Bar */}
-                <div className="bg-black rounded mt-2 h-3 border border-yellow-400 overflow-hidden">
-                  <div
-                    className="bg-gradient-to-r from-yellow-400 to-orange-400 h-full"
-                    style={{width: `${(agent.xp % 10000) / 100}%`}}
-                  />
-                </div>
-                <div className="text-yellow-300 text-xs font-bold mt-1">{agent.xp} XP</div>
-
-                <div className={`mt-3 px-3 py-1 rounded-full text-xs font-black uppercase animate-pulse ${
-                  agent.status === 'active'
-                    ? 'bg-green-500 text-black'
-                    : 'bg-gray-500 text-white'
-                }`}>
-                  {agent.status === 'active' ? '🟢 WORKING' : '⚪ IDLE'}
+                <div className="mt-6 p-3 bg-[#0a0f2c] rounded border border-amber-500 border-opacity-30">
+                  <div className="text-amber-400 font-mono text-xs flex items-center gap-2" style={{textShadow: '0 0 8px rgba(251,146,60,0.6)'}}>
+                    <span className="inline-block w-2 h-2 bg-amber-400 rounded-full animate-pulse"></span>
+                    SYSTEM: All systems nominal
+                  </div>
                 </div>
               </div>
-            ))}
+            </div>
           </div>
-        </div>
 
-        {/* Stats Grid with animated updates */}
-        <div className="grid grid-cols-5 gap-4 mb-8">
-          {[
-            { icon: CheckSquare, label: 'Active Tasks', value: '12', color: 'from-yellow-400 to-yellow-600', extra: '+3 this hour' },
-            { icon: Zap, label: 'Pipeline Items', value: '8', color: 'from-cyan-400 to-cyan-600', extra: '2 ready' },
-            { icon: Calendar, label: 'Scheduled', value: '24', color: 'from-pink-400 to-pink-600', extra: 'next: 2h' },
-            { icon: Brain, label: 'Memories', value: '156', color: 'from-purple-400 to-purple-600', extra: 'KB' },
-            { icon: Users, label: 'Team', value: '10', color: 'from-indigo-400 to-indigo-600', extra: 'active' },
-          ].map((stat, idx) => {
-            const Icon = stat.icon
-            return (
-              <div
-                key={idx}
-                className={`bg-gradient-to-br ${stat.color} p-6 rounded border-3 border-opacity-50 shadow-lg transform hover:scale-110 transition animate-bounce`}
-                style={{ animationDelay: `${(idx * 0.15) % 2}s` }}
-              >
-                <Icon className="text-gray-900 mb-2 animate-spin" size={24} style={{ animationDuration: '3s' }} />
-                <div className="text-3xl font-black text-gray-900">{stat.value}</div>
-                <div className="text-xs font-bold text-gray-800 uppercase">{stat.label}</div>
-                <div className="text-xs text-gray-700 mt-1">{stat.extra}</div>
-              </div>
-            )
-          })}
-        </div>
-
-        {/* Power-ups with pulsing effects */}
-        <div className="bg-black border-4 border-pink-400 p-6 rounded-lg shadow-2xl">
-          <h3 className="text-2xl font-black text-pink-300 mb-4">⚡ POWER-UPS AVAILABLE</h3>
-          <div className="grid grid-cols-4 gap-3">
+          {/* Bottom Info */}
+          <div className="grid grid-cols-3 gap-6">
             {[
-              { emoji: '⭐', label: 'BONUS XP', delay: '0s' },
-              { emoji: '🚀', label: 'SPEED UP', delay: '0.2s' },
-              { emoji: '💎', label: 'UNLOCK', delay: '0.4s' },
-              { emoji: '🎯', label: 'COMBO', delay: '0.6s' },
-            ].map((power, idx) => (
-              <button
-                key={idx}
-                className="bg-gradient-to-br from-yellow-400 to-yellow-600 p-4 rounded border-2 border-yellow-200 font-black text-black hover:scale-110 transition transform active:scale-95"
-                style={{
-                  animation: `pulse 2s ease-in-out infinite`,
-                  animationDelay: power.delay,
-                }}
-              >
-                <div className="text-2xl mb-1">{power.emoji}</div>
-                <div className="text-xs">{power.label}</div>
-              </button>
+              { title: 'COLLABORATION', value: '+24%', desc: 'Teamwork bonus' },
+              { title: 'UPTIME', value: '99.8%', desc: 'System availability' },
+              { title: 'STREAK', value: '13 🔥', desc: 'Days active' },
+            ].map((item, i) => (
+              <div key={i} className="group relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-cyan-500 to-amber-500 rounded-xl opacity-10 blur-lg group-hover:opacity-20 transition"></div>
+                <div className="relative bg-gradient-to-br from-[#1a2f4a] to-[#0f1f35] p-6 rounded-xl border border-cyan-500 border-opacity-20 backdrop-blur-sm text-center"
+                  style={{boxShadow: '0 0 20px rgba(34,211,238,0.2)'}}>
+                  
+                  <div className="text-cyan-400 font-mono text-xs mb-2" style={{textShadow: '0 0 8px rgba(34,211,238,0.4)'}}>
+                    {item.title}
+                  </div>
+                  <div className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-amber-400 mb-1"
+                    style={{textShadow: '0 0 15px rgba(251,146,60,0.5)'}}>
+                    {item.value}
+                  </div>
+                  <div className="text-cyan-300 text-xs font-mono">{item.desc}</div>
+                </div>
+              </div>
             ))}
           </div>
         </div>
       </div>
 
       <style>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0px) translateX(0px); }
-          25% { transform: translateY(-20px) translateX(10px); }
-          50% { transform: translateY(-40px) translateX(-10px); }
-          75% { transform: translateY(-20px) translateX(10px); }
+        @keyframes glow {
+          0%, 100% { text-shadow: 0 0 20px rgba(34,211,238,0.6); }
+          50% { text-shadow: 0 0 30px rgba(34,211,238,0.9); }
         }
-
-        @keyframes workProgress {
-          0% { width: 0%; }
-          100% { width: 100%; }
+        
+        .glow-text {
+          animation: glow 2s ease-in-out infinite;
         }
       `}</style>
     </div>
