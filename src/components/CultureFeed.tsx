@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { api } from "@/lib/api";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Sparkles,
   RefreshCw,
@@ -41,14 +41,40 @@ export function CultureFeed() {
   const { data: articles, isLoading } = useQuery({
     queryKey: ['culture-feed', filter],
     queryFn: async () => {
-      const data = await api.getCultureFeed(filter);
-      return data?.items as CultureArticle[];
+      // Try edge function first
+      try {
+        const { data, error } = await supabase.functions.invoke('get-culture-feed', {
+          body: { category: filter !== 'all' ? filter : undefined }
+        });
+        if (!error && data?.items?.length > 0) {
+          return data.items as CultureArticle[];
+        }
+      } catch (e) {
+        console.warn('Edge function failed, falling back to direct query:', e);
+      }
+
+      // Fallback: query culture_articles directly
+      let query = supabase
+        .from('culture_articles')
+        .select('id, source_name, title, excerpt, article_url, image_url, category, relevance_score, paraloop_headline, paraloop_analysis, paraloop_vibe, tags, created_at')
+        .order('created_at', { ascending: false })
+        .limit(24);
+
+      if (filter && filter !== 'all') {
+        query = query.eq('category', filter);
+      }
+
+      const { data: rows, error } = await query;
+      if (error) throw error;
+      return (rows || []) as CultureArticle[];
     }
   });
 
   const scrapeMutation = useMutation({
     mutationFn: async () => {
-      return await api.scrapeSites();
+      const { data, error } = await supabase.functions.invoke('scrape-culture-sites');
+      if (error) throw error;
+      return data;
     },
     onSuccess: (data) => {
       toast.success(`Scraped ${data?.count || 0} new articles!`);
@@ -61,7 +87,9 @@ export function CultureFeed() {
 
   const analyzeMutation = useMutation({
     mutationFn: async () => {
-      return await api.analyzeArticles();
+      const { data, error } = await supabase.functions.invoke('analyze-culture-articles');
+      if (error) throw error;
+      return data;
     },
     onSuccess: (data) => {
       toast.success(`Analyzed ${data?.analyzed || 0} articles with Paraloop!`);
