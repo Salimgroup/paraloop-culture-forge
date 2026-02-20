@@ -8,10 +8,10 @@ export default function Dashboard() {
   ]
 
   const workItems = [
-    { id: 1, title: 'Article: AI Revolution', status: 'processing', agent: 'Scraper Alpha' },
-    { id: 2, title: 'Summary: Tech Trends', status: 'processing', agent: 'Writer Prime' },
-    { id: 3, title: 'Rating: Culture Impact', status: 'processing', agent: 'Judge Relevance' },
-    { id: 4, title: 'Post: Social Media', status: 'queued', agent: 'Social Agent' },
+    { id: 1, title: 'Article: AI Revolution', status: 'reviewing', agent: 'Scraper Alpha', nextReview: 'Judge Relevance', quality: 95 },
+    { id: 2, title: 'Summary: Tech Trends', status: 'reviewing', agent: 'Writer Prime', nextReview: 'Judge Relevance', quality: 92 },
+    { id: 3, title: 'Rating: Culture Impact', status: 'approved', agent: 'Judge Relevance', nextReview: 'Social Agent', quality: 88 },
+    { id: 4, title: 'Post: Social Media', status: 'processing', agent: 'Social Agent', nextReview: 'Analyzer Pro', quality: 0 },
   ]
 
   return (
@@ -103,13 +103,13 @@ export default function Dashboard() {
           ))}
         </div>
 
-        {/* Active Work Queue - Showing Real Processing */}
+        {/* Active Work Queue - Showing Agent Communication & Quality Reviews */}
         <div className="bg-black border-4 border-yellow-400 p-8 rounded-lg mb-12 shadow-2xl overflow-hidden">
           <h2 className="text-4xl font-black text-yellow-300 mb-6 flex items-center gap-3">
-            👾 WORK IN PROGRESS
+            👾 COLLABORATIVE WORK FLOW
           </h2>
           <div className="space-y-4">
-            {workItems.map((item, idx) => (
+            {workItems.map((item: any, idx) => (
               <div
                 key={item.id}
                 className="bg-gradient-to-r from-purple-600 to-blue-600 p-4 rounded border-3 border-cyan-300 relative overflow-hidden"
@@ -117,7 +117,6 @@ export default function Dashboard() {
                   animation: `slideIn 0.5s ease-out ${idx * 0.1}s both`,
                 }}
               >
-                {/* Animated progress bar background */}
                 <style>{`
                   @keyframes slideIn {
                     from { transform: translateX(-100%); opacity: 0; }
@@ -132,19 +131,37 @@ export default function Dashboard() {
                 <div className="flex items-start justify-between mb-3">
                   <div>
                     <div className="font-black text-white text-lg">{item.title}</div>
-                    <div className="text-cyan-200 text-sm font-bold">Agent: {item.agent}</div>
+                    <div className="text-cyan-200 text-sm font-bold">
+                      {item.agent} {item.status === 'reviewing' ? '→' : '✓'} {item.nextReview || 'Done'}
+                    </div>
                   </div>
                   <div className={`px-3 py-1 rounded-full text-xs font-black uppercase ${
-                    item.status === 'processing'
-                      ? 'bg-green-500 text-black animate-pulse'
-                      : 'bg-yellow-500 text-black'
+                    item.status === 'approved'
+                      ? 'bg-green-500 text-black'
+                      : item.status === 'reviewing'
+                        ? 'bg-blue-500 text-white animate-pulse'
+                        : 'bg-yellow-500 text-black animate-pulse'
                   }`}>
-                    {item.status === 'processing' ? '🔄 WORKING' : '⏳ QUEUED'}
+                    {item.status === 'approved' ? '✅ APPROVED' : item.status === 'reviewing' ? '👀 REVIEWING' : '🔄 WORKING'}
                   </div>
                 </div>
 
+                {/* Quality Score */}
+                {item.quality > 0 && (
+                  <div className="mb-2 flex items-center gap-2">
+                    <span className="text-xs font-bold text-yellow-300">Quality:</span>
+                    <div className="flex-1 bg-black rounded-full h-2 border border-yellow-400 overflow-hidden max-w-xs">
+                      <div
+                        className="bg-gradient-to-r from-yellow-400 to-green-400 h-full"
+                        style={{width: `${item.quality}%`}}
+                      />
+                    </div>
+                    <span className="text-xs font-black text-yellow-300">{item.quality}%</span>
+                  </div>
+                )}
+
                 {/* Animated progress bar */}
-                {item.status === 'processing' && (
+                {(item.status === 'processing' || item.status === 'reviewing') && (
                   <div className="bg-black rounded h-3 border-2 border-cyan-400 overflow-hidden">
                     <div
                       className="bg-gradient-to-r from-cyan-400 via-pink-400 to-yellow-400 h-full rounded animate-pulse"
@@ -153,6 +170,13 @@ export default function Dashboard() {
                         animation: `workProgress ${2 + idx}s ease-in-out infinite`,
                       }}
                     />
+                  </div>
+                )}
+
+                {/* Communication indicator */}
+                {item.status === 'reviewing' && (
+                  <div className="text-xs text-cyan-300 mt-2 animate-pulse">
+                    💬 Agent communication in progress...
                   </div>
                 )}
               </div>
