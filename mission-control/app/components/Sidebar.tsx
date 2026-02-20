@@ -6,14 +6,15 @@ import { CheckSquare, Zap, Calendar, Brain, Users, Home, BookOpen } from 'lucide
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: Home, color: 'from-yellow-400 to-orange-500' },
-  { name: 'Agents', href: '/agents', icon: Users, color: 'from-cyan-400 to-blue-500' },
-  { name: 'Tasks', href: '/tasks', icon: CheckSquare, color: 'from-pink-400 to-red-500' },
-  { name: 'Designs', href: '/designs', icon: Users, color: 'from-purple-400 to-pink-500' },
-  { name: 'Pipeline', href: '/pipeline', icon: Zap, color: 'from-green-400 to-emerald-500' },
-  { name: 'Calendar', href: '/calendar', icon: Calendar, color: 'from-blue-400 to-cyan-500' },
-  { name: 'Memory', href: '/memory', icon: Brain, color: 'from-rose-400 to-pink-500' },
-  { name: 'Team', href: '/team', icon: Users, color: 'from-amber-400 to-yellow-500' },
-  { name: 'Guide', href: '/guide', icon: BookOpen, color: 'from-indigo-400 to-purple-500' },
+  { name: 'Agents Monitor', href: '/agents-monitor', icon: Users, color: 'from-cyan-400 to-blue-500' },
+  { name: 'Collaborate', href: '/agents', icon: Users, color: 'from-pink-400 to-red-500' },
+  { name: 'Tasks', href: '/tasks', icon: CheckSquare, color: 'from-purple-400 to-indigo-500' },
+  { name: 'Designs', href: '/designs', icon: Users, color: 'from-green-400 to-emerald-500' },
+  { name: 'Pipeline', href: '/pipeline', icon: Zap, color: 'from-blue-400 to-cyan-500' },
+  { name: 'Calendar', href: '/calendar', icon: Calendar, color: 'from-rose-400 to-pink-500' },
+  { name: 'Memory', href: '/memory', icon: Brain, color: 'from-amber-400 to-yellow-500' },
+  { name: 'Team', href: '/team', icon: Users, color: 'from-indigo-400 to-purple-500' },
+  { name: 'Guide', href: '/guide', icon: BookOpen, color: 'from-fuchsia-400 to-pink-500' },
 ]
 
 export default function Sidebar() {
