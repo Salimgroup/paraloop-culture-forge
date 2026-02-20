@@ -1,13 +1,12 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { 
-  Sparkles, 
+import { api } from "@/lib/api";
+import {
+  Sparkles,
   RefreshCw,
   LogIn,
   LogOut,
@@ -16,6 +15,7 @@ import { toast } from "sonner";
 import { CultureArticleCard } from "./culture/CultureArticleCard";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserRole } from "@/hooks/useUserRole";
+import { Spline3DBackground } from "./Spline3DBackground";
 
 type CultureArticle = {
   id: string;
@@ -42,19 +42,14 @@ export function CultureFeed() {
   const { data: articles, isLoading } = useQuery({
     queryKey: ['culture-feed', filter],
     queryFn: async () => {
-      const { data, error } = await supabase.functions.invoke('get-culture-feed', {
-        body: { category: filter }
-      });
-      if (error) throw error;
+      const data = await api.getCultureFeed(filter);
       return data?.items as CultureArticle[];
     }
   });
 
   const scrapeMutation = useMutation({
     mutationFn: async () => {
-      const { data, error } = await supabase.functions.invoke('scrape-culture-sites');
-      if (error) throw error;
-      return data;
+      return await api.scrapeSites();
     },
     onSuccess: (data) => {
       toast.success(`Scraped ${data?.count || 0} new articles!`);
@@ -67,9 +62,7 @@ export function CultureFeed() {
 
   const analyzeMutation = useMutation({
     mutationFn: async () => {
-      const { data, error } = await supabase.functions.invoke('analyze-culture-articles');
-      if (error) throw error;
-      return data;
+      return await api.analyzeArticles();
     },
     onSuccess: (data) => {
       toast.success(`Analyzed ${data?.analyzed || 0} articles with Paraloop!`);
@@ -82,10 +75,10 @@ export function CultureFeed() {
 
   const categories = [
     { value: 'all', label: 'All Culture' },
-    { value: 'music', label: '🎤 Music' },
-    { value: 'streetwear', label: '👟 Streetwear' },
-    { value: 'culture', label: '🌍 Culture' },
-    { value: 'fine-arts', label: '🎨 Fine Arts' },
+    { value: 'music', label: 'Music' },
+    { value: 'streetwear', label: 'Streetwear' },
+    { value: 'culture', label: 'Culture' },
+    { value: 'fine-arts', label: 'Fine Arts' },
     { value: 'business', label: '💼 Business' },
     { value: 'design', label: '🏛️ Design' },
   ];
@@ -119,15 +112,25 @@ export function CultureFeed() {
           </div>
         </div>
 
-        {/* Hero */}
-        <div className="text-center mb-10">
-          <h1 className="text-5xl font-bold bg-gradient-to-r from-primary via-purple-400 to-pink-400 bg-clip-text text-transparent">
-            Paraloop Culture
-          </h1>
-          <p className="text-muted-foreground mt-3 text-lg max-w-2xl mx-auto">
-            Your daily dose of hip-hop, streetwear, and urban culture — 
-            curated and analyzed with positive vibes only ✨
-          </p>
+        {/* Hero - Calm & Welcoming with 3D Background */}
+        <div className="relative text-center mb-12 py-16 bg-gradient-hero rounded-2xl overflow-hidden">
+          {/* 3D Background */}
+          <Spline3DBackground className="rounded-2xl" />
+
+          {/* Content */}
+          <div className="relative z-10">
+            <div className="inline-flex items-center gap-2 mb-4 px-4 py-2 glass-dark rounded-full shadow-lg">
+              <Sparkles className="w-4 h-4 text-primary" />
+              <span className="text-sm font-semibold text-primary">Culture Intelligence</span>
+            </div>
+            <h1 className="text-5xl font-bold mb-4 bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent">
+              Paraloop Culture
+            </h1>
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto leading-relaxed glass-dark inline-block px-6 py-3 rounded-2xl shadow-lg">
+              Your daily dose of hip-hop, streetwear, and urban culture —
+              curated and analyzed with positive vibes only
+            </p>
+          </div>
         </div>
 
         {/* Actions & Filters */}
@@ -160,33 +163,33 @@ export function CultureFeed() {
         {isLoading && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => (
-              <Card key={i} className="p-6">
-                <Skeleton className="h-4 w-3/4 mb-4" />
-                <Skeleton className="h-20 w-full mb-4" />
-                <Skeleton className="h-4 w-1/2" />
-              </Card>
+              <div key={i} className="glass-card p-6 rounded-2xl animate-pulse">
+                <Skeleton className="h-5 w-3/4 mb-4 bg-muted/30 rounded-lg" />
+                <Skeleton className="h-20 w-full mb-4 bg-muted/30 rounded-lg" />
+                <Skeleton className="h-4 w-1/2 bg-muted/30 rounded-full" />
+              </div>
             ))}
           </div>
         )}
 
         {/* Empty State */}
         {!isLoading && (!articles || articles.length === 0) && (
-          <Card className="p-12 text-center">
-            <Sparkles className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-xl font-semibold mb-2">No articles yet</h3>
-            <p className="text-muted-foreground mb-6">
-              {canManageContent 
+          <div className="glass-card p-16 text-center rounded-3xl">
+            <Sparkles className="w-14 h-14 mx-auto text-primary/60 mb-6" />
+            <h3 className="text-2xl font-bold mb-3">No articles yet</h3>
+            <p className="text-muted-foreground text-lg mb-8 max-w-md mx-auto leading-relaxed">
+              {canManageContent
                 ? 'Click "Refresh Feed" to scrape the latest culture articles and generate Paraloop analysis'
                 : 'Check back soon for fresh culture content!'
               }
             </p>
             {canManageContent && (
-              <Button onClick={() => scrapeMutation.mutate()} disabled={isRefreshing}>
+              <Button onClick={() => scrapeMutation.mutate()} disabled={isRefreshing} className="rounded-full shadow-md">
                 <RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
                 Start Scraping
               </Button>
             )}
-          </Card>
+          </div>
         )}
 
         {/* Articles Grid */}

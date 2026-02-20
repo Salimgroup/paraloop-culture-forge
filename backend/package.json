@@ -1,0 +1,20 @@
+{
+  "name": "paraloop-backend",
+  "version": "1.0.0",
+  "description": "Paraloop Culture Intelligence Platform Backend",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.20.9",
+    "@mendable/firecrawl-js": "^4.13.0",
+    "better-sqlite3": "^9.4.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.18.2",
+    "openai": "^6.22.0"
+  }
+}
