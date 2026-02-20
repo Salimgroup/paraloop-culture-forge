@@ -1,9 +1,9 @@
 import type { Metadata } from 'next'
-import Sidebar from './components/Sidebar'
 import './globals.css'
+import Sidebar from './components/Sidebar'
 
 export const metadata: Metadata = {
-  title: 'Paraloop Mission Control',
+  title: 'Paraloop Control - Mission Command Center',
   description: 'AI Agent Management Dashboard',
 }
 
@@ -14,13 +14,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="bg-black text-white">
-        <div className="flex h-screen">
-          <Sidebar />
-          <main className="flex-1 overflow-auto">
-            {children}
-          </main>
-        </div>
+      <body className="flex bg-gray-900">
+        <Sidebar />
+        <main className="flex-1 overflow-auto">
+          {children}
+        </main>
       </body>
     </html>
   )
