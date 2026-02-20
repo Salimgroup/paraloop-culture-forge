@@ -15,7 +15,6 @@ import { toast } from "sonner";
 import { CultureArticleCard } from "./culture/CultureArticleCard";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserRole } from "@/hooks/useUserRole";
-import { Spline3DBackground } from "./Spline3DBackground";
 
 type CultureArticle = {
   id: string;
@@ -114,10 +113,6 @@ export function CultureFeed() {
 
         {/* Hero - Calm & Welcoming with 3D Background */}
         <div className="relative text-center mb-12 py-16 bg-gradient-hero rounded-2xl overflow-hidden">
-          {/* 3D Background */}
-          <Spline3DBackground className="rounded-2xl" />
-
-          {/* Content */}
           <div className="relative z-10">
             <div className="inline-flex items-center gap-2 mb-4 px-4 py-2 glass-dark rounded-full shadow-lg">
               <Sparkles className="w-4 h-4 text-primary" />

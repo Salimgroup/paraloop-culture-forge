@@ -8,59 +8,59 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Paraloop Culture Engine - Futuristic Bold Design System */
-    /* Pure Black Background */
-    --background: 0 0% 0%;
-    --foreground: 0 0% 100%;
+    /* Paraloop Culture - Wellness-Forward Design System */
+    /* Warm cream background for calm, optimistic feel */
+    --background: 38 35% 94%;
+    --foreground: 25 25% 10%;
 
-    --card: 0 0% 5%;
-    --card-foreground: 0 0% 100%;
+    --card: 0 0% 100%;
+    --card-foreground: 25 25% 15%;
 
-    --popover: 0 0% 5%;
-    --popover-foreground: 0 0% 100%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 25 25% 15%;
 
-    /* Vibrant Orange - Primary Accent */
-    --primary: 20 100% 50%;
-    --primary-foreground: 0 0% 0%;
-    --primary-glow: 20 100% 60%;
+    /* Warm coral/terracotta - culturally rich, optimistic */
+    --primary: 15 75% 55%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 15 85% 65%;
 
-    /* White for contrast sections */
-    --secondary: 0 0% 98%;
-    --secondary-foreground: 0 0% 0%;
+    /* Soft sage for secondary elements */
+    --secondary: 150 25% 85%;
+    --secondary-foreground: 25 25% 15%;
 
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 60%;
+    --muted: 38 20% 88%;
+    --muted-foreground: 25 20% 35%;
 
-    /* Accent for highlights */
-    --accent: 20 100% 50%;
-    --accent-foreground: 0 0% 0%;
+    /* Warm amber accent */
+    --accent: 35 85% 60%;
+    --accent-foreground: 25 25% 15%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 0 70% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 15%;
-    --input: 0 0% 15%;
-    --ring: 20 100% 50%;
+    --border: 40 15% 88%;
+    --input: 40 15% 88%;
+    --ring: 15 75% 55%;
 
-    --radius: 0rem;
+    --radius: 0.75rem;
 
-    /* Status colors */
-    --success: 150 65% 50%;
-    --warning: 40 90% 55%;
-    --info: 210 80% 55%;
+    /* Status colors - wellness-inspired */
+    --success: 145 60% 50%;
+    --warning: 35 85% 55%;
+    --info: 200 75% 55%;
 
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(0 0% 0%) 0%, hsl(0 0% 10%) 100%);
-    --gradient-hero: linear-gradient(90deg, hsl(0 0% 0%) 50%, hsl(20 100% 50%) 50%);
-    --gradient-card: linear-gradient(180deg, hsl(0 0% 5%) 0%, hsl(0 0% 0%) 100%);
-    --gradient-split-black: linear-gradient(90deg, hsl(0 0% 0%) 60%, hsl(0 0% 98%) 60%);
-    --gradient-split-orange: linear-gradient(90deg, hsl(0 0% 98%) 50%, hsl(20 100% 50%) 50%);
+    /* Gradients - soft, organic */
+    --gradient-primary: linear-gradient(135deg, hsl(40 40% 97%) 0%, hsl(35 45% 95%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(15 75% 55% / 0.08) 0%, hsl(35 85% 60% / 0.12) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(40 30% 98%) 100%);
+    --gradient-split-black: linear-gradient(90deg, hsl(40 40% 97%) 60%, hsl(15 75% 55%) 60%);
+    --gradient-split-orange: linear-gradient(90deg, hsl(0 0% 100%) 50%, hsl(15 75% 55%) 50%);
 
-    /* Shadows */
-    --shadow-sm: 0 0 0 transparent;
-    --shadow-md: 0 0 0 transparent;
-    --shadow-lg: 0 4px 60px hsl(20 100% 50% / 0.3);
-    --shadow-glow: 0 0 80px hsl(20 100% 50% / 0.5);
+    /* Shadows - soft, natural */
+    --shadow-sm: 0 1px 2px hsl(25 25% 15% / 0.05);
+    --shadow-md: 0 4px 12px hsl(25 25% 15% / 0.08);
+    --shadow-lg: 0 12px 40px hsl(25 25% 15% / 0.12);
+    --shadow-glow: 0 0 40px hsl(15 75% 55% / 0.25);
 
     /* Animations */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -68,48 +68,48 @@ All colors MUST be HSL.
   }
 
   .dark {
-    /* Same as light theme - always black and orange */
-    --background: 0 0% 0%;
-    --foreground: 0 0% 100%;
+    /* Dark mode - warm, cozy, not harsh */
+    --background: 25 20% 12%;
+    --foreground: 40 30% 95%;
 
-    --card: 0 0% 5%;
-    --card-foreground: 0 0% 100%;
+    --card: 25 18% 16%;
+    --card-foreground: 40 30% 95%;
 
-    --popover: 0 0% 5%;
-    --popover-foreground: 0 0% 100%;
+    --popover: 25 18% 16%;
+    --popover-foreground: 40 30% 95%;
 
-    --primary: 20 100% 50%;
-    --primary-foreground: 0 0% 0%;
-    --primary-glow: 20 100% 60%;
+    --primary: 15 75% 60%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 15 85% 70%;
 
-    --secondary: 0 0% 98%;
-    --secondary-foreground: 0 0% 0%;
+    --secondary: 150 20% 25%;
+    --secondary-foreground: 40 30% 95%;
 
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 60%;
+    --muted: 25 15% 20%;
+    --muted-foreground: 40 15% 60%;
 
-    --accent: 20 100% 50%;
-    --accent-foreground: 0 0% 0%;
+    --accent: 35 80% 65%;
+    --accent-foreground: 25 20% 12%;
 
-    --destructive: 0 75% 55%;
+    --destructive: 0 70% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 15%;
-    --input: 0 0% 15%;
-    --ring: 20 100% 50%;
+    --border: 25 15% 22%;
+    --input: 25 15% 22%;
+    --ring: 15 75% 60%;
 
-    --success: 150 60% 45%;
-    --warning: 40 85% 50%;
-    --info: 210 75% 50%;
+    --success: 145 55% 50%;
+    --warning: 35 80% 60%;
+    --info: 200 70% 55%;
 
-    --gradient-primary: linear-gradient(135deg, hsl(0 0% 0%) 0%, hsl(0 0% 10%) 100%);
-    --gradient-hero: linear-gradient(90deg, hsl(0 0% 0%) 50%, hsl(20 100% 50%) 50%);
-    --gradient-card: linear-gradient(180deg, hsl(0 0% 5%) 0%, hsl(0 0% 0%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(25 20% 12%) 0%, hsl(25 18% 16%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(15 75% 60% / 0.12) 0%, hsl(35 80% 65% / 0.15) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(25 18% 16%) 0%, hsl(25 20% 14%) 100%);
 
-    --shadow-sm: 0 0 0 transparent;
-    --shadow-md: 0 0 0 transparent;
-    --shadow-lg: 0 4px 60px hsl(20 100% 50% / 0.3);
-    --shadow-glow: 0 0 80px hsl(20 100% 50% / 0.5);
+    --shadow-sm: 0 1px 2px hsl(0 0% 0% / 0.3);
+    --shadow-md: 0 4px 12px hsl(0 0% 0% / 0.4);
+    --shadow-lg: 0 12px 40px hsl(0 0% 0% / 0.5);
+    --shadow-glow: 0 0 40px hsl(15 75% 60% / 0.3);
   }
 }
 
@@ -124,8 +124,57 @@ All colors MUST be HSL.
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-weight: 900;
-    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+  }
+
+  h1 {
+    font-weight: 800;
     letter-spacing: -0.02em;
+  }
+
+  /* Smooth scrolling for wellness feel */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Glassmorphism utilities - Apple-inspired */
+  .glass {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .glass-dark {
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .glass-card {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  }
+
+  .glass-nav {
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  }
+
+  /* Subtle glow effect for interactive elements */
+  .glow-on-hover {
+    transition: box-shadow 0.3s ease;
+  }
+
+  .glow-on-hover:hover {
+    box-shadow: 0 0 20px rgba(230, 120, 86, 0.3), 0 8px 32px rgba(0, 0, 0, 0.12);
   }
 }

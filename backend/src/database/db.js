@@ -14,6 +14,7 @@ db.exec(`
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
     url TEXT NOT NULL,
+    feed_url TEXT,
     category TEXT NOT NULL,
     active INTEGER DEFAULT 1,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -43,6 +44,13 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_articles_published ON culture_articles(published);
   CREATE INDEX IF NOT EXISTS idx_articles_category ON culture_articles(category);
 `);
+
+// Migrate: add feed_url column if missing
+try {
+  db.exec('ALTER TABLE sources ADD COLUMN feed_url TEXT');
+} catch (e) {
+  // Column already exists
+}
 
 console.log('Database initialized');
 

@@ -1,117 +1,87 @@
 import express from 'express';
-import Firecrawl from '@mendable/firecrawl-js';
+import Parser from 'rss-parser';
 import db from '../database/db.js';
 
 const router = express.Router();
+const parser = new Parser({
+  timeout: 10000,
+  headers: { 'User-Agent': 'Paraloop Culture Bot/1.0' },
+});
 
 router.post('/', async (req, res) => {
-  const FIRECRAWL_API_KEY = process.env.FIRECRAWL_API_KEY;
-  
-  if (!FIRECRAWL_API_KEY) {
-    return res.status(500).json({ error: 'FIRECRAWL_API_KEY not set in .env file' });
-  }
-  
-  const app = new Firecrawl({ apiKey: FIRECRAWL_API_KEY });
-  
-  // Get active sources (limit to 1 site for testing)
-  const sources = db.prepare('SELECT * FROM sources WHERE active = 1 LIMIT 1').all();
-  
+  const sources = db.prepare('SELECT * FROM sources WHERE active = 1').all();
+
   if (sources.length === 0) {
-    return res.status(400).json({ 
-      error: 'No sources found. Run POST /api/sources/import first' 
+    return res.status(400).json({
+      error: 'No sources found. Run POST /api/sources/import first'
     });
   }
-  
+
   const results = [];
   let totalScraped = 0;
-  
-  try {
-    for (const source of sources) {
-      console.log(`\nScraping ${source.name} (${source.url})...`);
-      
-      try {
-        // Scrape the source homepage
-        const scrapeResult = await app.scrape(source.url);
-        
-        console.log('   Full response type:', typeof scrapeResult);
-        console.log('   Response keys:', scrapeResult ? Object.keys(scrapeResult) : 'null');
-        console.log('   Response:', JSON.stringify(scrapeResult, null, 2).substring(0, 500));
-        
-        // Check if response has markdown/content directly
-        if (scrapeResult && (scrapeResult.markdown || scrapeResult.content)) {
-          console.log('   Got content directly from response');
-          
-          // Extract links from markdown/content using regex
-          const content = scrapeResult.markdown || scrapeResult.content || '';
-          const linkRegex = /https?:\/\/[^\s\)\"\']+/g;
-          const allLinks = content.match(linkRegex) || [];
-          
-          // Filter for article links
-          const articleLinks = allLinks
-            .filter(link => {
-              return (
-                link.includes(source.url.replace('https://', '').replace('www.', '')) && // Same domain
-                (link.includes('/20') || link.includes('/article/') || link.includes('/news/')) &&
-                !link.includes('/tag/') &&
-                !link.includes('/category/')
-              );
-            })
-            .slice(0, 3); // Top 3 for testing
-          
-          console.log(`   Found ${articleLinks.length} article links`);
-          console.log(`   Links:`, articleLinks);
-          
-          // For now, just create a test article to confirm the flow works
-          const testTitle = `Test Article from ${source.name}`;
-          const testUrl = `${source.url}/test-${Date.now()}`;
-          
-          db.prepare(`
-            INSERT INTO culture_articles (
-              source_id, source_name, title, excerpt, content,
-              article_url, image_url, category, tags
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-          `).run(
-            source.id,
-            source.name,
-            testTitle,
-            'Test article to verify scraping pipeline',
-            content.substring(0, 1000),
-            testUrl,
-            null,
-            source.category,
-            JSON.stringify([source.category, 'culture', 'test'])
-          );
-          
+
+  const insert = db.prepare(`
+    INSERT OR IGNORE INTO culture_articles (
+      source_id, source_name, title, excerpt, content,
+      article_url, image_url, category, tags
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `);
+
+  for (const source of sources) {
+    const feedUrl = source.feed_url || `${source.url}/feed`;
+    console.log(`Scraping ${source.name} (${feedUrl})...`);
+
+    try {
+      const feed = await parser.parseURL(feedUrl);
+      const items = (feed.items || []).slice(0, 5);
+
+      for (const item of items) {
+        if (!item.title || !item.link) continue;
+
+        const title = item.title.trim();
+        const excerpt = (item.contentSnippet || item.summary || '').substring(0, 500).trim();
+        const content = (item['content:encoded'] || item.content || excerpt).substring(0, 3000);
+        const imageUrl = extractImage(item);
+
+        const info = insert.run(
+          source.id,
+          source.name,
+          title,
+          excerpt || null,
+          content || null,
+          item.link,
+          imageUrl,
+          source.category,
+          JSON.stringify([source.category, 'culture'])
+        );
+
+        if (info.changes > 0) {
           totalScraped++;
-          results.push({
-            source: source.name,
-            title: testTitle,
-            url: testUrl
-          });
-          
-          console.log(`   Created test article`);
-        } else {
-          console.log('   No content in response');
+          results.push({ source: source.name, title, url: item.link });
         }
-      } catch (sourceError) {
-        console.error(`   Error scraping ${source.name}:`, sourceError.message);
-        console.error('   Error details:', sourceError);
       }
+
+      console.log(`   Got ${items.length} items from ${source.name}`);
+    } catch (err) {
+      console.error(`   Failed ${source.name}: ${err.message}`);
     }
-    
-    console.log(`\nScraping complete! Scraped ${totalScraped} articles from ${sources.length} sources.\n`);
-    
-    res.json({
-      success: true,
-      count: totalScraped,
-      sources: sources.length,
-      articles: results
-    });
-    
-  } catch (error) {
-    console.error('Error in scrape:', error);
-    res.status(500).json({ error: error.message });
   }
+
+  console.log(`\nDone! Scraped ${totalScraped} new articles from ${sources.length} sources.\n`);
+
+  res.json({
+    success: true,
+    count: totalScraped,
+    sources: sources.length,
+    articles: results
+  });
 });
+
+function extractImage(item) {
+  if (item.enclosure?.url) return item.enclosure.url;
+  if (item['media:content']?.$.url) return item['media:content'].$.url;
+  const match = (item['content:encoded'] || item.content || '').match(/<img[^>]+src="([^"]+)"/);
+  return match ? match[1] : null;
+}
 
 export default router;
