@@ -1,115 +1,94 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
+@theme {
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  --font-sans: "Inter", sans-serif;
+}
+
+/*
+  The default border color has changed to `currentColor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
 */
+@layer base {
+
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+}
 
 @layer base {
   :root {
-    /* Paraloop Culture - Wellness-Forward Design System */
-    /* Warm cream background for calm, optimistic feel */
-    --background: 38 35% 94%;
-    --foreground: 25 25% 10%;
+    /* Holographic Sci-Fi Aesthetic */
+    /* Deep space background */
+    --background: 210 50% 3%;
+    --foreground: 180 100% 95%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 25 25% 15%;
+    --card: 240 10% 6%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 25 25% 15%;
+    --popover: 240 10% 6%;
+    --popover-foreground: 0 0% 98%;
 
-    /* Warm coral/terracotta - culturally rich, optimistic */
-    --primary: 15 75% 55%;
-    --primary-foreground: 0 0% 100%;
-    --primary-glow: 15 85% 65%;
+    /* Neon Cyan */
+    --primary: 186 100% 50%;
+    --primary-foreground: 210 50% 3%;
 
-    /* Soft sage for secondary elements */
-    --secondary: 150 25% 85%;
-    --secondary-foreground: 25 25% 15%;
+    /* Electric Blue Accent */
+    --secondary: 200 100% 40%;
+    --secondary-foreground: 180 100% 95%;
 
-    --muted: 38 20% 88%;
-    --muted-foreground: 25 20% 35%;
+    --muted: 240 5% 15%;
+    --muted-foreground: 240 5% 65%;
 
-    /* Warm amber accent */
-    --accent: 35 85% 60%;
-    --accent-foreground: 25 25% 15%;
+    --accent: 186 100% 50%;
+    --accent-foreground: 210 50% 3%;
 
-    --destructive: 0 70% 55%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 40 15% 88%;
-    --input: 40 15% 88%;
-    --ring: 15 75% 55%;
+    --border: 186 100% 15%;
+    --input: 186 100% 10%;
+    --ring: 186 100% 50%;
 
-    --radius: 0.75rem;
-
-    /* Status colors - wellness-inspired */
-    --success: 145 60% 50%;
-    --warning: 35 85% 55%;
-    --info: 200 75% 55%;
-
-    /* Gradients - soft, organic */
-    --gradient-primary: linear-gradient(135deg, hsl(40 40% 97%) 0%, hsl(35 45% 95%) 100%);
-    --gradient-hero: linear-gradient(135deg, hsl(15 75% 55% / 0.08) 0%, hsl(35 85% 60% / 0.12) 100%);
-    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(40 30% 98%) 100%);
-    --gradient-split-black: linear-gradient(90deg, hsl(40 40% 97%) 60%, hsl(15 75% 55%) 60%);
-    --gradient-split-orange: linear-gradient(90deg, hsl(0 0% 100%) 50%, hsl(15 75% 55%) 50%);
-
-    /* Shadows - soft, natural */
-    --shadow-sm: 0 1px 2px hsl(25 25% 15% / 0.05);
-    --shadow-md: 0 4px 12px hsl(25 25% 15% / 0.08);
-    --shadow-lg: 0 12px 40px hsl(25 25% 15% / 0.12);
-    --shadow-glow: 0 0 40px hsl(15 75% 55% / 0.25);
-
-    /* Animations */
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-spring: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-
-  .dark {
-    /* Dark mode - warm, cozy, not harsh */
-    --background: 25 20% 12%;
-    --foreground: 40 30% 95%;
-
-    --card: 25 18% 16%;
-    --card-foreground: 40 30% 95%;
-
-    --popover: 25 18% 16%;
-    --popover-foreground: 40 30% 95%;
-
-    --primary: 15 75% 60%;
-    --primary-foreground: 0 0% 100%;
-    --primary-glow: 15 85% 70%;
-
-    --secondary: 150 20% 25%;
-    --secondary-foreground: 40 30% 95%;
-
-    --muted: 25 15% 20%;
-    --muted-foreground: 40 15% 60%;
-
-    --accent: 35 80% 65%;
-    --accent-foreground: 25 20% 12%;
-
-    --destructive: 0 70% 55%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 25 15% 22%;
-    --input: 25 15% 22%;
-    --ring: 15 75% 60%;
-
-    --success: 145 55% 50%;
-    --warning: 35 80% 60%;
-    --info: 200 70% 55%;
-
-    --gradient-primary: linear-gradient(135deg, hsl(25 20% 12%) 0%, hsl(25 18% 16%) 100%);
-    --gradient-hero: linear-gradient(135deg, hsl(15 75% 60% / 0.12) 0%, hsl(35 80% 65% / 0.15) 100%);
-    --gradient-card: linear-gradient(180deg, hsl(25 18% 16%) 0%, hsl(25 20% 14%) 100%);
-
-    --shadow-sm: 0 1px 2px hsl(0 0% 0% / 0.3);
-    --shadow-md: 0 4px 12px hsl(0 0% 0% / 0.4);
-    --shadow-lg: 0 12px 40px hsl(0 0% 0% / 0.5);
-    --shadow-glow: 0 0 40px hsl(15 75% 60% / 0.3);
+    --radius: 0.5rem;
   }
 }
 
@@ -119,62 +98,114 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    @apply bg-background text-foreground tracking-wide font-sans;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
+}
 
-  h1, h2, h3, h4, h5, h6 {
-    font-weight: 700;
-    letter-spacing: -0.01em;
-    line-height: 1.2;
-  }
-
-  h1 {
-    font-weight: 800;
-    letter-spacing: -0.02em;
-  }
-
-  /* Smooth scrolling for wellness feel */
-  html {
-    scroll-behavior: smooth;
-  }
-
-  /* Glassmorphism utilities - Apple-inspired */
-  .glass {
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-  }
-
-  .glass-dark {
-    background: rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+@layer utilities {
+  .glass-panel {
+    @apply bg-black/60 backdrop-blur-xl border border-primary/20 shadow-[0_0_20px_#00f3ff0d];
   }
 
   .glass-card {
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(16px) saturate(180%);
-    -webkit-backdrop-filter: blur(16px) saturate(180%);
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    @apply bg-black/50 backdrop-blur-2xl border border-primary/20 hover:border-primary shadow-[0_4px_30px_#00000080] hover:shadow-[0_0_30px_#00f3ff33] transition-all duration-500 relative overflow-hidden;
   }
 
-  .glass-nav {
-    background: rgba(255, 255, 255, 0.75);
-    backdrop-filter: blur(24px) saturate(180%);
-    -webkit-backdrop-filter: blur(24px) saturate(180%);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary drop-shadow-[0_0_8px_#00f3ff80];
   }
 
-  /* Subtle glow effect for interactive elements */
-  .glow-on-hover {
-    transition: box-shadow 0.3s ease;
+  .text-gradient-bronze {
+    @apply text-white drop-shadow-[0_0_5px_#ffffffcc];
   }
 
-  .glow-on-hover:hover {
-    box-shadow: 0 0 20px rgba(230, 120, 86, 0.3), 0 8px 32px rgba(0, 0, 0, 0.12);
+  .hud-border {
+    @apply border border-primary/40 relative;
   }
+
+  .hud-border::before {
+    content: '';
+    @apply absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-primary;
+  }
+
+  .hud-border::after {
+    content: '';
+    @apply absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-primary;
+  }
+
+  /* Extreem 3D Depth Utilities */
+  .perspective-container {
+    perspective: 1000px;
+  }
+
+  /* Spline-style Floating Animations */
+  .animate-float-soft {
+    animation: float-soft 15s ease-in-out infinite;
+  }
+
+  .animate-float-soft-delayed {
+    animation: float-soft 18s ease-in-out infinite -9s;
+  }
+
+  .animate-float-shard {
+    animation: float-shard 20s ease-in-out infinite;
+  }
+
+  .animate-float-shard-delayed {
+    animation: float-shard 25s ease-in-out infinite -12s;
+  }
+}
+
+@keyframes float-soft {
+
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+
+  50% {
+    transform: translateY(-30px) scale(1.05);
+  }
+}
+
+@keyframes float-shard {
+
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+
+  50% {
+    transform: translateY(-40px) rotate(2deg);
+  }
+}
+
+/* Subtle scanline overlay for holographic feel */
+.bg-grain {
+  position: relative;
+  background-color: #030811;
+}
+
+.bg-grain::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+  background-size: 100% 2px, 3px 100%;
+  /* Modified from 4px, 6px */
+  opacity: 0.3;
+}
+
+.bg-grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opactiy='0.05'/%3E%3C/svg%3E");
+  opacity: 0.05;
+  mix-blend-mode: overlay;
 }

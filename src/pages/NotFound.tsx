@@ -1,24 +1,19 @@
-import { useLocation } from "react-router-dom";
-import { useEffect } from "react";
+import { Link } from "react-router-dom";
 
-const NotFound = () => {
-  const location = useLocation();
-
-  useEffect(() => {
-    console.error("404 Error: User attempted to access non-existent route:", location.pathname);
-  }, [location.pathname]);
-
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">404</h1>
-        <p className="mb-4 text-xl text-gray-600">Oops! Page not found</p>
-        <a href="/" className="text-blue-500 underline hover:text-blue-700">
-          Return to Home
-        </a>
-      </div>
-    </div>
-  );
-};
-
-export default NotFound;
+export default function NotFound() {
+    return (
+        <div className="min-h-[70vh] flex flex-col items-center justify-center text-center p-4">
+            <h1 className="text-8xl font-black text-white/10 mb-4">404</h1>
+            <h2 className="text-2xl font-bold mb-6">Frequency Not Found</h2>
+            <p className="text-muted-foreground max-w-md mb-8">
+                The cultural signal you're looking for we either missed, or it has moved to a different frequency.
+            </p>
+            <Link
+                to="/feed"
+                className="px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full transition-all"
+            >
+                Return to Feed
+            </Link>
+        </div>
+    );
+}
